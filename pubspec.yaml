@@ -12,6 +12,7 @@ dependencies:
   postgres: ^3.1.2
   collection: ^1.15.0
   intl: ^0.17.0
+  crypto: ^3.0.1
 
 dev_dependencies:
   flutter_test:
@@ -20,3 +21,5 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  assets:
+    - assets/

@@ -1,16 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:safeguard_v2/screens/register/index.dart';
+import 'package:safeguard_v2/screens/dashboard/index.dart';
+import 'package:safeguard_v2/helpers/userHelper.dart'; // Importe o userHelper
 
 class LoginPage extends StatelessWidget {
   const LoginPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final TextEditingController usernameController = TextEditingController();
+    final TextEditingController emailController = TextEditingController();
     final TextEditingController passwordController = TextEditingController();
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Login Page'),
+        title: const Text('Login'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -18,9 +21,9 @@ class LoginPage extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             TextField(
-              controller: usernameController,
+              controller: emailController,
               decoration: const InputDecoration(
-                labelText: 'Username',
+                labelText: 'email',
               ),
             ),
             const SizedBox(height: 16.0),
@@ -33,13 +36,47 @@ class LoginPage extends StatelessWidget {
             ),
             const SizedBox(height: 24.0),
             ElevatedButton(
-              onPressed: () {
-                // Adicione a lógica de autenticação aqui
-                String username = usernameController.text;
+              onPressed: () async {
+                String email = emailController.text;
                 String password = passwordController.text;
-                print('Username: $username, Password: $password');
+
+                bool isAuthenticated = await loginUser(email, password);
+
+                if (isAuthenticated) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const DashboardPage()),
+                  );
+                } else {
+                  showDialog(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      title: const Text('Não foi possível realizar o Login'),
+                      content: const Text('Usuário ou senha inválido.'),
+                      actions: <Widget>[
+                        TextButton(
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                          child: const Text('OK'),
+                        ),
+                      ],
+                    ),
+                  );
+                }
               },
               child: const Text('Login'),
+            ),
+            const SizedBox(height: 16.0),
+            TextButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const RegisterPage()),
+                );
+              },
+              child: const Text('Não tem uma conta? Registre-se'),
             ),
           ],
         ),
