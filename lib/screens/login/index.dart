@@ -39,7 +39,7 @@ class LoginPage extends StatelessWidget {
               onPressed: () async {
                 String email = emailController.text;
                 String password = passwordController.text;
-
+//
                 bool isAuthenticated = await loginUser(email, password);
 
                 if (isAuthenticated) {
