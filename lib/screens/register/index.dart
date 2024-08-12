@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:safeguard_v2/helpers/userHelper.dart';
+import 'package:safeguard_v2/screens/login/index.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -15,6 +16,50 @@ class _RegisterPageState extends State<RegisterPage> {
   final TextEditingController confirmPasswordController =
       TextEditingController();
   bool isTermsAccepted = false;
+
+  void _showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Error'),
+          content: Text(message),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showSuccessDialog() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Success'),
+          content: const Text('Usuário registrado com sucesso!'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const LoginPage()),
+                );
+              },
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -110,21 +155,23 @@ class _RegisterPageState extends State<RegisterPage> {
                   String password = passwordController.text;
                   String confirmPassword = confirmPasswordController.text;
 
-                  if (password == confirmPassword) {
-                    if (isTermsAccepted) {
-                      try {
-                        await createUser(fullName, email,
-                            password); // Descomente e implemente a função createUser
-                        print('User registered successfully!');
-                        // Navegue para a página de login ou home aqui
-                      } catch (e) {
-                        print('Error registering user: $e');
-                      }
-                    } else {
-                      print('You must accept the terms to register');
-                    }
-                  } else {
-                    print('Passwords do not match');
+                  if (password != confirmPassword) {
+                    _showErrorDialog('As senhas não correspondem.');
+                    return;
+                  }
+
+                  if (!isTermsAccepted) {
+                    _showErrorDialog(
+                        'Você deve aceitar os termos para se registrar.');
+                    return;
+                  }
+
+                  try {
+                    await createUser(fullName, email, password);
+                    print('Usuário cadastrado com sucesso!');
+                    _showSuccessDialog();
+                  } catch (e) {
+                    _showErrorDialog('Erro ao cadastrar usuário: $e');
                   }
                 },
                 child: const Text('Cadastrar'),

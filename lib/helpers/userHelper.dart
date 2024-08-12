@@ -36,7 +36,7 @@ Future<void> createUser(String fullName, String email, String password) async {
 
   if (result[0][0] > 0) {
     print('Email já cadastrado');
-    return;
+    throw 'Email já cadastrado';
   }
 
   // Hash da senha
@@ -50,28 +50,35 @@ Future<void> createUser(String fullName, String email, String password) async {
   );
 
   print('User created!');
+  await conn.close();
 }
 
-Future<bool> loginUser(String email, String password) async {
+Future<Map<String, dynamic>?> loginUser(String email, String password) async {
   try {
     final conn = await database();
 
     final result = await conn.execute(
       Sql.named(
-          ' SELECT COUNT(*) AS count FROM users WHERE email = @email AND password = @password'),
+          'SELECT id, full_name, email, profile_picture FROM users WHERE email = @email AND password = @password'),
       parameters: {
         'email': email,
         'password': hashPassword(password),
       },
     );
-    print(result.first.toColumnMap());
-
     await conn.close();
+    print(result);
 
-    if (result.isNotEmpty && result[0][0] == 1) {
-      return true;
+    if (result.isNotEmpty) {
+      print('AQUI');
+      // Extrai os dados do usuário
+      return {
+        'id': result[0][0].toString(),
+        'full_name': result[0][1],
+        'email': result[0][2],
+        'profile_picture': result[0][3],
+      };
     } else {
-      return false;
+      return null; // Usuário não encontrado
     }
   } catch (e) {
     print('Error logging in: $e');

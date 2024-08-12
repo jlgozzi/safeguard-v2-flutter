@@ -23,14 +23,14 @@ class LoginPage extends StatelessWidget {
             TextField(
               controller: emailController,
               decoration: const InputDecoration(
-                labelText: 'email',
+                labelText: 'Email',
               ),
             ),
             const SizedBox(height: 16.0),
             TextField(
               controller: passwordController,
               decoration: const InputDecoration(
-                labelText: 'Password',
+                labelText: 'Senha',
               ),
               obscureText: true,
             ),
@@ -39,21 +39,25 @@ class LoginPage extends StatelessWidget {
               onPressed: () async {
                 String email = emailController.text;
                 String password = passwordController.text;
-//
-                bool isAuthenticated = await loginUser(email, password);
 
-                if (isAuthenticated) {
-                  Navigator.push(
+                Map<String, dynamic>? userData =
+                    await loginUser(email, password);
+
+                print(userData);
+
+                if (userData != null) {
+                  Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => const DashboardPage()),
+                      builder: (context) => DashboardPage(userData: userData),
+                    ),
                   );
                 } else {
                   showDialog(
                     context: context,
                     builder: (context) => AlertDialog(
-                      title: const Text('Não foi possível realizar o Login'),
-                      content: const Text('Usuário ou senha inválido.'),
+                      title: const Text('Falha no Login'),
+                      content: const Text('Email ou senha inválido(s).'),
                       actions: <Widget>[
                         TextButton(
                           onPressed: () {
@@ -76,7 +80,7 @@ class LoginPage extends StatelessWidget {
                   MaterialPageRoute(builder: (context) => const RegisterPage()),
                 );
               },
-              child: const Text('Não tem uma conta? Registre-se'),
+              child: const Text('Não possui uma conta? Cadastre-se aqui'),
             ),
           ],
         ),
