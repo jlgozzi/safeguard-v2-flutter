@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:safeguard_v2/helpers/dbHelper.dart'; // Importe o userHelper
 
 class PasswordsPage extends StatefulWidget {
   const PasswordsPage({super.key});
@@ -8,70 +9,111 @@ class PasswordsPage extends StatefulWidget {
 }
 
 class _PasswordsPageState extends State<PasswordsPage> {
-  String _selectedFilter = 'All';
+  List<dynamic> _passwords = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchPasswords(); // Carrega as senhas quando a página é inicializada
+  }
+
+  Future<void> _fetchPasswords() async {
+    final passwords = await fetchPasswords();
+    setState(() {
+      _passwords = passwords;
+    });
+  }
+
+  Future<void> _addPassword(String description, String code) async {
+    await addPassword(description, code);
+    _fetchPasswords(); // Recarrega a lista de senhas após adicionar uma nova
+  }
+
+  Future<void> _editPassword(int id, String description, String code) async {
+    await editPassword(id, description, code);
+    _fetchPasswords(); // Recarrega a lista de senhas após editar
+  }
+
+  void _showAddEditDialog({int? id, String? description, String? code}) {
+    final descriptionController = TextEditingController(text: description);
+    final codeController = TextEditingController(text: code);
+
+    showDialog(
+      context: context,
+      builder: (ctx) {
+        return AlertDialog(
+          title: Text(id == null ? 'Adicionar Senha' : 'Editar Senha'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: descriptionController,
+                decoration: const InputDecoration(labelText: 'Descrição'),
+              ),
+              TextField(
+                controller: codeController,
+                decoration: const InputDecoration(labelText: 'Código'),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              child: const Text('Cancelar'),
+              onPressed: () {
+                Navigator.of(ctx).pop();
+              },
+            ),
+            TextButton(
+              child: Text(id == null ? 'Adicionar' : 'Salvar'),
+              onPressed: () {
+                if (id == null) {
+                  _addPassword(descriptionController.text, codeController.text);
+                } else {
+                  _editPassword(
+                      id, descriptionController.text, codeController.text);
+                }
+                Navigator.of(ctx).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Passwords'),
+        title: const Text('Gerenciamento de Senhas'),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            DropdownButton<String>(
-              value: _selectedFilter,
-              items: <String>[
-                'All',
-                'Accounts',
-                'Alphabetical',
-                'Recently Modified'
-              ].map((String value) {
-                return DropdownMenuItem<String>(
-                  value: value,
-                  child: Text(value),
+      body: _passwords.isEmpty
+          ? const Center(child: Text('Nenhuma senha encontrada.'))
+          : ListView.builder(
+              itemCount: _passwords.length,
+              itemBuilder: (ctx, index) {
+                final password = _passwords[index];
+                return ListTile(
+                  title: Text(password['description']),
+                  subtitle: Text(password['code']),
+                  trailing: IconButton(
+                    icon: const Icon(Icons.edit),
+                    onPressed: () {
+                      _showAddEditDialog(
+                        id: password['id'],
+                        description: password['description'],
+                        code: password['code'],
+                      );
+                    },
+                  ),
                 );
-              }).toList(),
-              onChanged: (String? newValue) {
-                setState(() {
-                  _selectedFilter = newValue!;
-                  // Adicione lógica para filtrar senhas
-                });
               },
             ),
-            Expanded(
-              child: ListView.builder(
-                itemCount: 10, // Substitua com o número real de senhas
-                itemBuilder: (context, index) {
-                  return Card(
-                    child: ListTile(
-                      title: const Text('{{account_name}}'),
-                      subtitle: const Text('**********'),
-                      trailing: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          IconButton(
-                            icon: const Icon(Icons.edit),
-                            onPressed: () {
-                              // Adicione a lógica de edição aqui
-                            },
-                          ),
-                          IconButton(
-                            icon: const Icon(Icons.copy),
-                            onPressed: () {
-                              // Adicione a lógica de copiar senha aqui
-                            },
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
-          ],
-        ),
+      floatingActionButton: FloatingActionButton(
+        child: const Icon(Icons.add),
+        onPressed: () {
+          _showAddEditDialog();
+        },
       ),
     );
   }

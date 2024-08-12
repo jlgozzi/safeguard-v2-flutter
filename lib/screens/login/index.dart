@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:safeguard_v2/screens/register/index.dart';
 import 'package:safeguard_v2/screens/dashboard/index.dart';
-import 'package:safeguard_v2/helpers/userHelper.dart'; // Importe o userHelper
+import 'package:safeguard_v2/helpers/dbHelper.dart'; // Importe o userHelper
 
 class LoginPage extends StatelessWidget {
   const LoginPage({super.key});

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:safeguard_v2/screens/pasword/index.dart';
 
 class DashboardPage extends StatelessWidget {
   final Map<String, dynamic> userData;
@@ -76,7 +77,12 @@ class NavigationDrawer extends StatelessWidget {
             leading: const Icon(Icons.vpn_key),
             title: const Text('Senhas'),
             onTap: () {
-              // Navigate to Passwords
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const PasswordsPage(),
+                ),
+              );
             },
           ),
           ListTile(

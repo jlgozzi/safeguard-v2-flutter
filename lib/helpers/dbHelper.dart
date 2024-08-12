@@ -23,6 +23,8 @@ String hashPassword(String password) {
   return digest.toString();
 }
 
+//USER HELPERS
+
 Future<void> createUser(String fullName, String email, String password) async {
   final conn = await database();
 
@@ -39,7 +41,6 @@ Future<void> createUser(String fullName, String email, String password) async {
     throw 'Email já cadastrado';
   }
 
-  // Hash da senha
   final hashedPassword = hashPassword(password);
 
   await conn!.execute(
@@ -84,4 +85,86 @@ Future<Map<String, dynamic>?> loginUser(String email, String password) async {
     print('Error logging in: $e');
     rethrow;
   }
+}
+
+// PASS HELPERS
+
+Future<List<Map<String, dynamic>>> getPasswords() async {
+  try {
+    final conn = await database();
+    final List<Map<String, dynamic>> result = await conn
+        .execute(Sql.named('SELECT id, description, code FROM passwords'));
+    print(result.toList());
+    return result.toList();
+  } catch (error) {
+    print('Erro ao buscar senhas: $error');
+    return [];
+  }
+}
+
+Future<List<dynamic>> fetchPasswords() async {
+  final conn = await database();
+  try {
+    final results = await conn
+        .execute(Sql.named('SELECT id, description, code FROM passwords'));
+    print(results
+        .map((row) => {
+              'id': row[0],
+              'description': row[1],
+              'code': row[2],
+            })
+        .toList());
+
+    return results
+        .map((row) => {
+              'id': row[0],
+              'description': row[1],
+              'code': row[2],
+            })
+        .toList();
+  } catch (e) {
+    print('Erro ao buscar senhas: $e');
+    return [];
+  } finally {
+    await conn.close();
+  }
+}
+
+Future<void> addPassword(String description, String code) async {
+  final conn = await database();
+  await conn.execute(
+    Sql.named(
+        'INSERT INTO passwords (description, code, token) VALUES (@description, @code, @token)'),
+    parameters: {
+      'description': description,
+      'code': code,
+      'token': 'some_token', // Gere o token conforme necessário
+    },
+  );
+  await conn.close();
+}
+
+Future<void> editPassword(int id, String description, String code) async {
+  final conn = await database();
+  await conn.execute(
+    Sql.named(
+        'UPDATE passwords SET description = @description, code = @code WHERE id = @id'),
+    parameters: {
+      'description': description,
+      'code': code,
+      'id': id,
+    },
+  );
+  await conn.close();
+}
+
+Future<void> deletePassword(int id) async {
+  final conn = await database();
+  await conn.execute(
+    Sql.named('DELETE FROM passwords WHERE id = @id'),
+    parameters: {
+      'id': id,
+    },
+  );
+  await conn.close();
 }
