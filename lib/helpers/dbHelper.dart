@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:crypto/crypto.dart';
 import 'package:postgres/postgres.dart';
+import 'package:safeguard_v2/manager/sessionManager.dart';
 
 Future database() async {
   final conn = await Connection.open(
@@ -70,8 +71,11 @@ Future<Map<String, dynamic>?> loginUser(String email, String password) async {
     print(result);
 
     if (result.isNotEmpty) {
-      print('AQUI');
-      // Extrai os dados do usuário
+      // Salva o userId no SessionManager
+      final session = SessionManager();
+      session.userId = result[0][0].toString();
+
+      // Retorna os dados do usuário
       return {
         'id': result[0][0].toString(),
         'full_name': result[0][1],
@@ -87,33 +91,51 @@ Future<Map<String, dynamic>?> loginUser(String email, String password) async {
   }
 }
 
-// PASS HELPERS
+// PASSWORD HELPERS
+// Future<List<dynamic>> fetchPasswords() async {
+//   final conn = await database();
+//   final session = SessionManager(); // Acessa o userId global
+//   final userId = session.userId;
 
-Future<List<Map<String, dynamic>>> getPasswords() async {
-  try {
-    final conn = await database();
-    final List<Map<String, dynamic>> result = await conn
-        .execute(Sql.named('SELECT id, description, code FROM passwords'));
-    print(result.toList());
-    return result.toList();
-  } catch (error) {
-    print('Erro ao buscar senhas: $error');
-    return [];
-  }
-}
+//   if (userId == null) {
+//     print('Usuário não está logado');
+//     return [];
+//   }
+
+//   try {
+//     final results = await conn.execute(
+//         Sql.named(
+//             'SELECT id, description, code FROM passwords WHERE user_id = @userId'),
+//         {'userId': userId}); // Passa o userId como parâmetro
+//     return results
+//         .map((row) => {
+//               'id': row[0],
+//               'description': row[1],
+//               'code': row[2],
+//             })
+//         .toList();
+//   } catch (e) {
+//     print('Erro ao buscar senhas: $e');
+//     return [];
+//   } finally {
+//     await conn.close();
+//   }
+// }
 
 Future<List<dynamic>> fetchPasswords() async {
+  final session = SessionManager(); // Acessa o userId global
+  final userId = session.userId;
+
+  if (userId == null) {
+    print('Usuário não está logado');
+  }
+
   final conn = await database();
   try {
-    final results = await conn
-        .execute(Sql.named('SELECT id, description, code FROM passwords'));
-    print(results
-        .map((row) => {
-              'id': row[0],
-              'description': row[1],
-              'code': row[2],
-            })
-        .toList());
+    final results = await conn.execute(
+        Sql.named(
+            'SELECT id, description, code FROM passwords WHERE user_id = @userId'),
+        parameters: {'userId': userId});
 
     return results
         .map((row) => {
@@ -131,14 +153,22 @@ Future<List<dynamic>> fetchPasswords() async {
 }
 
 Future<void> addPassword(String description, String code) async {
+  final session = SessionManager(); // Acessa o userId global
+  final userId = session.userId;
+
+  if (userId == null) {
+    print('Usuário não está logado');
+  }
+
   final conn = await database();
   await conn.execute(
     Sql.named(
-        'INSERT INTO passwords (description, code, token) VALUES (@description, @code, @token)'),
+        'INSERT INTO passwords (description, code, token, user_id) VALUES (@description, @code, @token, @userId)'),
     parameters: {
       'description': description,
       'code': code,
       'token': 'some_token', // Gere o token conforme necessário
+      'userId': userId
     },
   );
   await conn.close();
