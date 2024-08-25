@@ -1,50 +1,97 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import 'package:safeguard_v2/helpers/logHelper.dart';
+import 'package:safeguard_v2/helpers/configHelper.dart';
 import 'package:safeguard_v2/manager/sessionManager.dart';
 
-class LogsPage extends StatefulWidget {
-  const LogsPage({super.key});
+class UserConfigPage extends StatefulWidget {
+  const UserConfigPage({super.key});
 
   @override
-  _LogsPageState createState() => _LogsPageState();
+  _UserConfigPageState createState() => _UserConfigPageState();
 }
 
-class _LogsPageState extends State<LogsPage> {
-  late List<dynamic> _logs; // Alterado para uma lista síncrona.
+class _UserConfigPageState extends State<UserConfigPage> {
+  bool? isDark;
+  bool? isPassVisible;
+  bool? isNameVisible;
 
   @override
   void initState() {
     super.initState();
-    _logs = SessionManager().logs; // Carregar logs diretamente.
+    _loadUserConfigs();
+  }
+
+  Future<void> _loadUserConfigs() async {
+    final session = SessionManager();
+    final userConfigs = session.userConfig;
+
+    if (userConfigs != null) {
+      setState(() {
+        isDark = userConfigs['is_dark'];
+        isPassVisible = userConfigs['is_pass_visible'];
+        isNameVisible = userConfigs['is_name_visible'];
+      });
+    }
+  }
+
+  Future<void> _saveUserConfigs() async {
+    final session = SessionManager();
+    await updateUserConfigs(isDark!, isPassVisible!, isNameVisible!);
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Configurações salvas com sucesso!')),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
+    if (isDark == null || isPassVisible == null || isNameVisible == null) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Logs'),
+        title: const Text('Configurações do Usuário'),
       ),
-      body: _logs.isEmpty
-          ? const Center(
-              child: Text('No logs found.')) // Verificação de lista vazia.
-          : ListView.builder(
-              itemCount: _logs.length,
-              itemBuilder: (context, index) {
-                final log = _logs[index];
-                final createdAt = DateFormat('yyyy-MM-dd HH:mm:ss')
-                    .format(DateTime.parse(log['created_at']));
-
-                return ListTile(
-                  title: Text(
-                      '${log['action']} on ${log['table_name']} [ID: ${log['record_id']}]'),
-                  subtitle:
-                      Text('${log['description']}\nUser ID: ${log['user_id']}'),
-                  trailing: Text(createdAt),
-                  isThreeLine: true,
-                );
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SwitchListTile(
+              title: const Text('Modo Escuro'),
+              value: isDark!,
+              onChanged: (value) {
+                setState(() {
+                  isDark = value;
+                });
               },
             ),
+            SwitchListTile(
+              title: const Text('Exibir Senhas'),
+              value: isPassVisible!,
+              onChanged: (value) {
+                setState(() {
+                  isPassVisible = value;
+                });
+              },
+            ),
+            SwitchListTile(
+              title: const Text('Exibir Nome'),
+              value: isNameVisible!,
+              onChanged: (value) {
+                setState(() {
+                  isNameVisible = value;
+                });
+              },
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: _saveUserConfigs,
+              child: const Text('Salvar Configurações'),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

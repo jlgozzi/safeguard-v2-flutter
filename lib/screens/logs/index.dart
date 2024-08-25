@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:safeguard_v2/helpers/logHelper.dart';
-import 'package:safeguard_v2/manager/sessionManager.dart';
+import 'package:safeguard_v2/manager/sessionManager.dart'; // Certifique-se de que o caminho está correto
 
 class LogsPage extends StatefulWidget {
   const LogsPage({super.key});
@@ -11,12 +10,13 @@ class LogsPage extends StatefulWidget {
 }
 
 class _LogsPageState extends State<LogsPage> {
-  late List<dynamic> _logs; // Logs como uma lista síncrona.
+  late Future<void> _loadLogsFuture;
 
   @override
   void initState() {
     super.initState();
-    _logs = SessionManager().logs; // Carregar logs diretamente.
+    _loadLogsFuture =
+        SessionManager().reload(); // Recarregar todos os dados, incluindo logs
   }
 
   @override
@@ -25,26 +25,44 @@ class _LogsPageState extends State<LogsPage> {
       appBar: AppBar(
         title: const Text('Logs'),
       ),
-      body: _logs.isEmpty
-          ? const Center(
-              child: Text('No logs found.')) // Verificação de lista vazia.
-          : ListView.builder(
-              itemCount: _logs.length,
-              itemBuilder: (context, index) {
-                final log = _logs[index];
-                final createdAt =
-                    DateFormat('yyyy-MM-dd HH:mm:ss').format(log['created_at']);
+      body: FutureBuilder<void>(
+        future: _loadLogsFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          } else {
+            final logs = SessionManager().logs; // Acessa os logs já carregados
 
-                return ListTile(
-                  title: Text(
-                      '${log['action']} on ${log['table_name']} [ID: ${log['record_id']}]'),
-                  subtitle:
-                      Text('${log['description']}\nUser ID: ${log['user_id']}'),
-                  trailing: Text(createdAt),
-                  isThreeLine: true,
-                );
-              },
-            ),
+            if (logs.isEmpty) {
+              return const Center(child: Text('No logs found.'));
+            } else {
+              return ListView.builder(
+                itemCount: logs.length,
+                itemBuilder: (context, index) {
+                  final log = logs[index];
+                  final DateTime createdAt = log[
+                      'created_at']; // Assume que 'created_at' é um DateTime
+                  final formattedDate =
+                      DateFormat('yyyy-MM-dd HH:mm:ss').format(createdAt);
+
+                  return ListTile(
+                    title: Text(
+                      '${log['action']} on ${log['table_name']} [ID: ${log['id']}]',
+                    ),
+                    subtitle: Text(
+                      '${log['description']}\nUser ID: ${log['user_id']}',
+                    ),
+                    trailing: Text(formattedDate),
+                    isThreeLine: true,
+                  );
+                },
+              );
+            }
+          }
+        },
+      ),
     );
   }
 }

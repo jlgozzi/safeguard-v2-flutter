@@ -3,7 +3,7 @@ import 'package:safeguard_v2/database/config.dart';
 import 'package:safeguard_v2/manager/sessionManager.dart';
 
 // Função para buscar as configurações do usuário
-Future<Map<String, dynamic>?> fetchUserConfig() async {
+Future<Map<String, dynamic>?> fetchUserConfigs() async {
   final session = SessionManager();
   final userId = session.userId;
   final conn = await database();

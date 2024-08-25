@@ -21,7 +21,7 @@ class _UserConfigPageState extends State<UserConfigPage> {
   }
 
   Future<void> _loadUserConfigs() async {
-    final userConfigs = await fetchUserConfig();
+    final userConfigs = await fetchUserConfigs();
 
     if (userConfigs != null) {
       setState(() {

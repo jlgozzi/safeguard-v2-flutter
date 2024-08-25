@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:safeguard_v2/screens/accounts/index.dart';
 import 'package:safeguard_v2/screens/cards/index.dart';
 import 'package:safeguard_v2/screens/category/index.dart';
-import 'package:safeguard_v2/screens/config/index.dart';
+// import 'package:safeguard_v2/screens/config/index.dart';
 import 'package:safeguard_v2/screens/password/index.dart';
 import 'package:safeguard_v2/screens/user_config/index.dart';
+import 'package:safeguard_v2/screens/logs/index.dart';
 
 class DashboardPage extends StatelessWidget {
   final Map<String, dynamic> userData;

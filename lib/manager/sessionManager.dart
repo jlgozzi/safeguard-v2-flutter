@@ -25,7 +25,7 @@ class SessionManager {
     categories = await fetchCategories();
     passwords = await fetchPasswords();
     accounts = await fetchAccounts();
-    userConfig = await fetchUserConfig();
+    userConfig = await fetchUserConfigs();
     logs = await fetchLogs();
   }
 }
