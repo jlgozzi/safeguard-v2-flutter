@@ -1,4 +1,7 @@
+import 'package:safeguard_v2/helpers/accountHelper.dart';
 import 'package:safeguard_v2/helpers/categoryHelper.dart';
+import 'package:safeguard_v2/helpers/configHelper.dart';
+import 'package:safeguard_v2/helpers/logHelper.dart';
 import 'package:safeguard_v2/helpers/passwordsHelper.dart';
 
 class SessionManager {
@@ -6,7 +9,11 @@ class SessionManager {
 
   String? userId;
   List<dynamic> categories = [];
-  List<dynamic> passwords = []; // Adicione essa lista para armazenar as senhas
+  List<dynamic> passwords = [];
+  List<dynamic> accounts = [];
+  List<dynamic> logs = [];
+
+  Map<String, dynamic>? userConfig;
 
   factory SessionManager() {
     return _instance;
@@ -17,5 +24,8 @@ class SessionManager {
   Future<void> reload() async {
     categories = await fetchCategories();
     passwords = await fetchPasswords();
+    accounts = await fetchAccounts();
+    userConfig = await fetchUserConfig();
+    logs = await fetchLogs();
   }
 }

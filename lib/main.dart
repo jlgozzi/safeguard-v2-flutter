@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:safeguard_v2/screens/home/index.dart';
 
-
 void main() {
   runApp(const MyApp());
 }

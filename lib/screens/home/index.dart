@@ -29,7 +29,8 @@ class HomePage extends StatelessWidget {
               const SizedBox(height: 40),
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 80),
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 15, horizontal: 80),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(30),
                   ),
@@ -45,7 +46,8 @@ class HomePage extends StatelessWidget {
               const SizedBox(height: 20),
               OutlinedButton(
                 style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 80),
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 15, horizontal: 80),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(30),
                   ),
@@ -53,7 +55,8 @@ class HomePage extends StatelessWidget {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const RegisterPage()),
+                    MaterialPageRoute(
+                        builder: (context) => const RegisterPage()),
                   );
                 },
                 child: const Text('Register'),
