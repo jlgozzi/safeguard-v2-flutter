@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:safeguard_v2/helpers/dbHelper.dart';
+import 'package:safeguard_v2/helpers/userHelper.dart';
 import 'package:safeguard_v2/screens/login/index.dart';
 
 class RegisterPage extends StatefulWidget {

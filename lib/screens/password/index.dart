@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:safeguard_v2/helpers/dbHelper.dart'; // Importe o dbHelper que lida com o banco de dados
+import 'package:safeguard_v2/helpers/categoryHelper.dart';
+import 'package:safeguard_v2/helpers/dbHelper.dart';
+import 'package:safeguard_v2/helpers/passwordsHelper.dart';
+import 'package:safeguard_v2/manager/sessionManager.dart';
 
-// Define a página de senhas como um StatefulWidget, permitindo que o estado mude durante a execução
 class PasswordsPage extends StatefulWidget {
   const PasswordsPage({super.key});
 
@@ -9,63 +11,63 @@ class PasswordsPage extends StatefulWidget {
   _PasswordsPageState createState() => _PasswordsPageState();
 }
 
-// Classe que mantém o estado da página de senhas
 class _PasswordsPageState extends State<PasswordsPage> {
-  // Lista que contém as senhas
   List<dynamic> _passwords = [];
+  List<dynamic> _categories = [];
 
   @override
   void initState() {
     super.initState();
-    _fetchPasswords(); // Chama a função para carregar as senhas quando a página é inicializada
+    _fetchPasswords();
+    _loadCategoriesFromSession();
   }
 
-  // Função assíncrona para buscar as senhas do banco de dados
   Future<void> _fetchPasswords() async {
-    final passwords =
-        await fetchPasswords(); // Busca as senhas no banco de dados
+    final passwords = await fetchPasswords();
     setState(() {
-      _passwords = passwords; // Atualiza o estado com as senhas obtidas
+      _passwords = passwords;
     });
   }
 
-  // Função assíncrona para adicionar uma nova senha
+  void _loadCategoriesFromSession() {
+    final session = SessionManager();
+    setState(() {
+      _categories = session.categories;
+    });
+  }
+
   Future<void> _addPassword(String description, String code) async {
-    await addPassword(description, code); // Adiciona a senha ao banco de dados
-    _fetchPasswords(); // Recarrega a lista de senhas após adicionar uma nova
+    await addPassword(description, code);
+    _fetchPasswords();
   }
 
-  // Função assíncrona para editar uma senha existente
   Future<void> _editPassword(int id, String description, String code) async {
-    await editPassword(
-        id, description, code); // Edita a senha no banco de dados
-    _fetchPasswords(); // Recarrega a lista de senhas após a edição
+    await editPassword(id, description, code);
+    _fetchPasswords();
   }
 
-  // Função assíncrona para deletar uma senha
   Future<void> _deletePassword(int id) async {
-    await deletePassword(id); // Deleta a senha do banco de dados
-    _fetchPasswords(); // Recarrega a lista de senhas após a exclusão
+    await deletePassword(id);
+    _fetchPasswords();
   }
 
-  // Função para mostrar o diálogo de adicionar/editar senha
   void _showAddEditDialog({int? id, String? description, String? code}) {
-    // Controladores para capturar o texto inserido pelo usuário
     final descriptionController = TextEditingController(text: description);
     final codeController = TextEditingController(text: code);
 
-    // Mostra o diálogo usando showDialog
+    String? selectedCategoryId;
+    if (_categories.isNotEmpty) {
+      selectedCategoryId = _categories[0]['id'].toString();
+    }
+
     showDialog(
       context: context,
       builder: (ctx) {
         return AlertDialog(
-          title: Text(id == null
-              ? 'Adicionar Senha'
-              : 'Editar Senha'), // Define o título do diálogo
+          title: Text(id == null ? 'Adicionar Senha' : 'Editar Senha'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Campo de texto para a descrição da senha
               TextField(
                 controller: descriptionController,
                 decoration: InputDecoration(
@@ -75,9 +77,7 @@ class _PasswordsPageState extends State<PasswordsPage> {
                   ),
                 ),
               ),
-              const SizedBox(
-                  height: 10), // Espaçamento entre os campos de texto
-              // Campo de texto para o código da senha
+              const SizedBox(height: 10),
               TextField(
                 controller: codeController,
                 decoration: InputDecoration(
@@ -87,27 +87,56 @@ class _PasswordsPageState extends State<PasswordsPage> {
                   ),
                 ),
               ),
+              const SizedBox(height: 10),
+              _categories.isNotEmpty
+                  ? DropdownButtonFormField<String>(
+                      value: selectedCategoryId,
+                      items: _categories.map((category) {
+                        return DropdownMenuItem<String>(
+                          value: category['id'].toString(),
+                          child: Text(category['description']),
+                        );
+                      }).toList(),
+                      onChanged: (value) {
+                        setState(() {
+                          selectedCategoryId = value;
+                        });
+                      },
+                      decoration: InputDecoration(
+                        labelText: 'Categoria',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8.0),
+                        ),
+                      ),
+                    )
+                  : const CircularProgressIndicator(),
             ],
           ),
-          // Botões de ações no diálogo
           actions: [
             TextButton(
               child: const Text('Cancelar'),
               onPressed: () {
-                Navigator.of(ctx).pop(); // Fecha o diálogo ao cancelar
+                Navigator.of(ctx).pop();
               },
             ),
             ElevatedButton(
               child: Text(id == null ? 'Adicionar' : 'Salvar'),
               onPressed: () {
-                if (id == null) {
-                  _addPassword(descriptionController.text,
-                      codeController.text); // Adiciona uma nova senha
+                if (selectedCategoryId != null) {
+                  if (id == null) {
+                    _addPassword(
+                        descriptionController.text, codeController.text);
+                  } else {
+                    _editPassword(
+                        id, descriptionController.text, codeController.text);
+                  }
+                  Navigator.of(ctx).pop();
                 } else {
-                  _editPassword(id, descriptionController.text,
-                      codeController.text); // Edita a senha existente
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                        content: Text('Por favor, selecione uma categoria.')),
+                  );
                 }
-                Navigator.of(ctx).pop(); // Fecha o diálogo após a ação
               },
             ),
           ],
@@ -116,32 +145,29 @@ class _PasswordsPageState extends State<PasswordsPage> {
     );
   }
 
-  // Função para mostrar o diálogo de confirmação de exclusão
   void _showDeleteConfirmationDialog(int id) {
     showDialog(
       context: context,
       builder: (ctx) {
         return AlertDialog(
-          title: const Text(
-              'Confirmar Exclusão'), // Título do diálogo de confirmação
+          title: const Text('Confirmar Exclusão'),
           content: const Text('Tem certeza que deseja excluir esta senha?'),
           actions: [
             TextButton(
               child: const Text('Cancelar'),
               onPressed: () {
-                Navigator.of(ctx).pop(); // Fecha o diálogo ao cancelar
+                Navigator.of(ctx).pop();
               },
             ),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
-                // Estilo do botão de exclusão
                 backgroundColor: const Color.fromARGB(255, 18, 191, 136),
               ),
               onPressed: () {
-                _deletePassword(id); // Deleta a senha ao confirmar
-                Navigator.of(ctx).pop(); // Fecha o diálogo após a exclusão
+                _deletePassword(id);
+                Navigator.of(ctx).pop();
               },
-              child: const Text('Excluir'), // Texto do botão de exclusão
+              child: const Text('Excluir'),
             ),
           ],
         );
@@ -149,34 +175,29 @@ class _PasswordsPageState extends State<PasswordsPage> {
     );
   }
 
-  // Método build para desenhar a interface do usuário da página
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Gerenciamento de Senhas'),
         centerTitle: true,
-        backgroundColor:
-            const Color.fromARGB(255, 151, 252, 224), // Cor do AppBar
+        backgroundColor: const Color.fromARGB(255, 151, 252, 224),
       ),
-      // Corpo da página. Mostra uma mensagem se a lista de senhas estiver vazia,
-      // caso contrário, mostra uma lista de senhas
       body: _passwords.isEmpty
           ? const Center(
               child: Text('Nenhuma senha encontrada.',
-                  style:
-                      TextStyle(fontSize: 18))) // Mensagem quando não há senhas
+                  style: TextStyle(fontSize: 18)),
+            )
           : ListView.builder(
               padding: const EdgeInsets.all(8.0),
-              itemCount: _passwords.length, // Número de senhas na lista
+              itemCount: _passwords.length,
               itemBuilder: (ctx, index) {
-                final password = _passwords[index]; // Cada senha na lista
+                final password = _passwords[index];
                 return Card(
-                  elevation: 5, // Elevação do Card para dar sombra
+                  elevation: 5,
                   margin: const EdgeInsets.symmetric(vertical: 8.0),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(
-                        10.0), // Borda arredondada do Card
+                    borderRadius: BorderRadius.circular(10.0),
                   ),
                   child: ListTile(
                     contentPadding: const EdgeInsets.symmetric(
@@ -184,33 +205,29 @@ class _PasswordsPageState extends State<PasswordsPage> {
                       vertical: 10.0,
                     ),
                     title: Text(
-                      password['description'], // Descrição da senha
+                      password['description'],
                       style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
-                    subtitle: Text(password['code']), // Código da senha
+                    subtitle: Text(password['code']),
                     trailing: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        // Botão de editar senha
                         IconButton(
                           icon: const Icon(Icons.edit,
                               color: Color.fromARGB(255, 67, 67, 67)),
                           onPressed: () {
                             _showAddEditDialog(
-                              id: password['id'], // ID da senha
-                              description:
-                                  password['description'], // Descrição da senha
-                              code: password['code'], // Código da senha
+                              id: password['id'],
+                              description: password['description'],
+                              code: password['code'],
                             );
                           },
                         ),
-                        // Botão de deletar senha
                         IconButton(
                           icon: const Icon(Icons.delete,
                               color: Color.fromARGB(255, 199, 34, 22)),
                           onPressed: () {
-                            _showDeleteConfirmationDialog(password[
-                                'id']); // Mostra diálogo de confirmação de exclusão
+                            _showDeleteConfirmationDialog(password['id']);
                           },
                         ),
                       ],
@@ -221,10 +238,10 @@ class _PasswordsPageState extends State<PasswordsPage> {
             ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          _showAddEditDialog(); // Mostra o diálogo de adicionar senha
+          _showAddEditDialog();
         },
         backgroundColor: const Color.fromARGB(255, 33, 222, 193),
-        child: const Icon(Icons.add), // Ícone do botão flutuante
+        child: const Icon(Icons.add),
       ),
     );
   }
