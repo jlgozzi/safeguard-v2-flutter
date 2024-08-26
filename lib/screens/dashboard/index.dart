@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:safeguard_v2/screens/accounts/index.dart';
 import 'package:safeguard_v2/screens/cards/index.dart';
 import 'package:safeguard_v2/screens/category/index.dart';
-// import 'package:safeguard_v2/screens/config/index.dart';
 import 'package:safeguard_v2/screens/password/index.dart';
+import 'package:safeguard_v2/screens/user/index.dart';
 import 'package:safeguard_v2/screens/user_config/index.dart';
 import 'package:safeguard_v2/screens/logs/index.dart';
+// Adicione o import da página de edição de perfil
 
 class DashboardPage extends StatelessWidget {
   final Map<String, dynamic> userData;
@@ -23,35 +24,42 @@ class DashboardPage extends StatelessWidget {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            // Header com imagem, nome e email do usuário
-            Row(
-              children: [
-                CircleAvatar(
-                  radius: 30,
-                  backgroundColor: Colors.grey[200],
-                  child: const Icon(Icons.person, color: Colors.grey, size: 40),
-                ),
-                const SizedBox(width: 16),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      userData['full_name'] ?? 'Nome do Usuário',
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
+            // Header centralizado com imagem, nome e email do usuário
+            GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        const ProfilePage(), // Página de edição de perfil
+                  ),
+                );
+              },
+              child: Column(
+                children: [
+                  CircleAvatar(
+                    radius: 30,
+                    backgroundColor: Colors.grey[200],
+                    child:
+                        const Icon(Icons.person, color: Colors.grey, size: 40),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    userData['full_name'] ?? 'Nome do Usuário',
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
                     ),
-                    Text(
-                      userData['email'] ?? 'email@exemplo.com',
-                      style: const TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey,
-                      ),
+                  ),
+                  Text(
+                    userData['email'] ?? 'email@exemplo.com',
+                    style: const TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey,
                     ),
-                  ],
-                ),
-              ],
+                  ),
+                ],
+              ),
             ),
             const SizedBox(height: 20),
             // Box com botões menores
