@@ -1,175 +1,157 @@
 import 'package:flutter/material.dart';
+import 'package:safeguard_v2/manager/sessionManager.dart';
 import 'package:safeguard_v2/screens/accounts/index.dart';
 import 'package:safeguard_v2/screens/cards/index.dart';
 import 'package:safeguard_v2/screens/category/index.dart';
+import 'package:safeguard_v2/screens/config/index.dart';
+import 'package:safeguard_v2/screens/logs/index.dart';
 import 'package:safeguard_v2/screens/password/index.dart';
 import 'package:safeguard_v2/screens/user/index.dart';
-import 'package:safeguard_v2/screens/user_config/index.dart';
-import 'package:safeguard_v2/screens/logs/index.dart';
-// Adicione o import da página de edição de perfil
 
-class DashboardPage extends StatelessWidget {
-  final Map<String, dynamic> userData;
-
-  const DashboardPage({super.key, required this.userData});
+class DashboardPage extends StatefulWidget {
+  const DashboardPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Safeguard'),
-        centerTitle: true,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            // Header centralizado com imagem, nome e email do usuário
-            GestureDetector(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) =>
-                        const ProfilePage(), // Página de edição de perfil
-                  ),
-                );
-              },
-              child: Column(
-                children: [
-                  CircleAvatar(
-                    radius: 30,
-                    backgroundColor: Colors.grey[200],
-                    child:
-                        const Icon(Icons.person, color: Colors.grey, size: 40),
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    userData['full_name'] ?? 'Nome do Usuário',
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  Text(
-                    userData['email'] ?? 'email@exemplo.com',
-                    style: const TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 20),
-            // Box com botões menores
-            Expanded(
-              child: GridView.count(
-                crossAxisCount: 2, // Dois botões por linha
-                crossAxisSpacing: 16,
-                mainAxisSpacing: 16,
-                children: [
-                  _buildDashboardButton(
-                    context,
-                    icon: Icons.credit_card,
-                    label: 'Cartões',
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const CardsPage()),
-                      );
-                    },
-                  ),
-                  _buildDashboardButton(
-                    context,
-                    icon: Icons.account_box,
-                    label: 'Contas',
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const AccountsPage()),
-                      );
-                    },
-                  ),
-                  _buildDashboardButton(
-                    context,
-                    icon: Icons.category,
-                    label: 'Categorias',
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const CategoriesPage()),
-                      );
-                    },
-                  ),
-                  _buildDashboardButton(
-                    context,
-                    icon: Icons.vpn_key,
-                    label: 'Senhas',
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const PasswordsPage()),
-                      );
-                    },
-                  ),
-                  _buildDashboardButton(
-                    context,
-                    icon: Icons.history,
-                    label: 'Histórico',
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const LogsPage()),
-                      );
-                    },
-                  ),
-                  _buildDashboardButton(
-                    context,
-                    icon: Icons.settings,
-                    label: 'Configurações',
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const UserConfigPage()),
-                      );
-                    },
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
+  _DashboardPageState createState() => _DashboardPageState();
+}
+
+class _DashboardPageState extends State<DashboardPage>
+    with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(
+      length: 5, // Atualizado para 5 abas
+      vsync: this,
     );
   }
 
-  Widget _buildDashboardButton(
-    BuildContext context, {
-    required IconData icon,
-    required String label,
-    required VoidCallback onPressed,
-  }) {
-    return ElevatedButton(
-      onPressed: onPressed,
-      style: ElevatedButton.styleFrom(
-        padding: const EdgeInsets.all(12.0),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12.0),
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  void _onProfileOptionSelected(String option) {
+    if (option == 'Editar Perfil') {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const ProfilePage()),
+      );
+    } else if (option == 'Configurações') {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const UserConfigPage()),
+      );
+    } else if (option == 'Sair') {
+      // Exibe um modal de confirmação antes de realizar o logout
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Sair'),
+            content: const Text('Você tem certeza que deseja sair?'),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(); // Fecha o modal
+                },
+                child: const Text('Cancelar'),
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(); // Fecha o modal
+                  Navigator.pushReplacementNamed(context, '/login');
+                },
+                child: const Text('Sair'),
+              ),
+            ],
+          );
+        },
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // Acessa o SessionManager e obtém o nome do usuário
+    final sessionManager = SessionManager();
+    final fullName = sessionManager.user?['full_name'] ?? 'Usuário';
+
+    return Scaffold(
+      appBar: AppBar(
+        toolbarHeight: 100,
+        backgroundColor: Colors.white,
+        elevation: 0,
+        centerTitle: true,
+        automaticallyImplyLeading: false, // Remove o botão de voltar
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Image.asset(
+              'assets/vector.png', // Substitua pelo caminho da sua imagem
+              height: 50,
+            ),
+            const SizedBox(width: 10),
+            const Text(
+              'Safeguard',
+              style: TextStyle(color: Colors.black, fontSize: 24),
+            ),
+            const Spacer(),
+            Row(
+              children: [
+                Text(
+                  fullName, // Exibe o nome do usuário
+                  style: const TextStyle(color: Colors.black, fontSize: 16),
+                ),
+                const SizedBox(width: 10),
+                PopupMenuButton<String>(
+                  onSelected: _onProfileOptionSelected,
+                  offset: const Offset(0, 50), // Move o menu abaixo da foto
+                  itemBuilder: (BuildContext context) {
+                    return {'Editar Perfil', 'Configurações', 'Sair'}
+                        .map((String choice) {
+                      return PopupMenuItem<String>(
+                        value: choice,
+                        child: Text(choice),
+                      );
+                    }).toList();
+                  },
+                  child: const CircleAvatar(
+                    backgroundImage: AssetImage(
+                        'assets/profile.jpg'), // Caminho para a imagem do perfil
+                    radius: 25,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+        bottom: TabBar(
+          controller: _tabController,
+          isScrollable: true,
+          labelColor: Colors.blue,
+          unselectedLabelColor: Colors.grey,
+          indicatorColor: Colors.blue,
+          tabs: const [
+            Tab(text: 'Contas'),
+            Tab(text: 'Cartões'),
+            Tab(text: 'Categorias'),
+            Tab(text: 'Senhas'),
+            Tab(text: 'Histórico'),
+          ],
         ),
       ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(icon, size: 40),
-          const SizedBox(height: 8),
-          Text(label, style: const TextStyle(fontSize: 16)),
+      body: TabBarView(
+        controller: _tabController,
+        children: const [
+          AccountsPage(),
+          CardsPage(),
+          CategoriesPage(),
+          PasswordsPage(),
+          LogsPage(),
         ],
       ),
     );

@@ -166,6 +166,11 @@ class _PasswordsPageState extends State<PasswordsPage> {
               onPressed: () {
                 _deletePassword(id);
                 Navigator.of(ctx).pop();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Senha excluída com sucesso!'),
+                  ),
+                );
               },
               child: const Text('Excluir'),
             ),
@@ -179,9 +184,24 @@ class _PasswordsPageState extends State<PasswordsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Gerenciamento de Senhas'),
+        automaticallyImplyLeading: false,
+        title: Container(
+          padding: const EdgeInsets.symmetric(
+              vertical: 8.0, horizontal: 16.0), // Padding maior
+          decoration: BoxDecoration(
+            color: Colors.black54, // Cor de fundo
+            borderRadius: BorderRadius.circular(20), // Borda arredondada
+          ),
+          child: const Text(
+            'Minhas senhas',
+            style: TextStyle(
+              color: Colors.white, // Cor do texto
+              fontWeight: FontWeight.bold, // Negrito
+            ),
+          ),
+        ),
         centerTitle: true,
-        backgroundColor: const Color.fromARGB(255, 151, 252, 224),
+        backgroundColor: const Color.fromARGB(255, 34, 193, 145),
       ),
       body: _passwords.isEmpty
           ? const Center(

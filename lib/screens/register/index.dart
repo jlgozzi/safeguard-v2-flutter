@@ -90,6 +90,34 @@ class _RegisterPageState extends State<RegisterPage> {
     );
   }
 
+  // Função para exibir os termos de uso em um modal
+  void _showTermsDialog() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Termos de Acesso'),
+          content: const SingleChildScrollView(
+            child: Text(
+              'Aqui você pode adicionar seus termos de acesso...'
+              '\n\nLorem ipsum dolor sit amet, consectetur adipiscing elit. '
+              'Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+              style: TextStyle(fontSize: 14),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Fechar'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -106,146 +134,172 @@ class _RegisterPageState extends State<RegisterPage> {
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: <Widget>[
-                SizedBox(
-                  height: 100,
-                  child:
-                      Image.asset('assets/logo.png'), // Coloque seu logo aqui
-                ),
-                const SizedBox(height: 16.0),
-                const Center(
-                  child: Text(
-                    'Registrar',
-                    style: TextStyle(
-                      fontSize: 24.0,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.green,
-                    ),
+          child: Center(
+            child: Container(
+              padding: const EdgeInsets.all(16.0),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(8),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.3),
+                    spreadRadius: 2,
+                    blurRadius: 5,
+                    offset: const Offset(0, 3), // changes position of shadow
                   ),
-                ),
-                const SizedBox(height: 24.0),
-                TextFormField(
-                  controller: fullNameController,
-                  decoration: const InputDecoration(
-                    labelText: 'Nome completo',
-                    border: OutlineInputBorder(),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Nome completo é obrigatório';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16.0),
-                TextFormField(
-                  controller: emailController,
-                  decoration: const InputDecoration(
-                    labelText: 'Email',
-                    border: OutlineInputBorder(),
-                  ),
-                  validator: _validateEmail,
-                ),
-                const SizedBox(height: 16.0),
-                TextFormField(
-                  controller: passwordController,
-                  decoration: InputDecoration(
-                    labelText: 'Senha',
-                    border: const OutlineInputBorder(),
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        _isPasswordVisible
-                            ? Icons.visibility
-                            : Icons.visibility_off,
-                      ),
-                      onPressed: () {
-                        setState(() {
-                          _isPasswordVisible = !_isPasswordVisible;
-                        });
-                      },
-                    ),
-                  ),
-                  obscureText: !_isPasswordVisible,
-                  validator: _validatePassword,
-                ),
-                const SizedBox(height: 16.0),
-                TextFormField(
-                  controller: confirmPasswordController,
-                  decoration: InputDecoration(
-                    labelText: 'Confirmar senha',
-                    border: const OutlineInputBorder(),
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        _isConfirmPasswordVisible
-                            ? Icons.visibility
-                            : Icons.visibility_off,
-                      ),
-                      onPressed: () {
-                        setState(() {
-                          _isConfirmPasswordVisible =
-                              !_isConfirmPasswordVisible;
-                        });
-                      },
-                    ),
-                  ),
-                  obscureText: !_isConfirmPasswordVisible,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Confirmação de senha é obrigatória';
-                    } else if (value != passwordController.text) {
-                      return 'As senhas não correspondem';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16.0),
-                Row(
+                ],
+              ),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: <Widget>[
-                    Checkbox(
-                      value: isTermsAccepted,
-                      onChanged: (bool? value) {
-                        setState(() {
-                          isTermsAccepted = value ?? false;
-                        });
+                    SizedBox(
+                      height: 100,
+                      child: Image.asset(
+                          'assets/logo.png'), // Coloque seu logo aqui
+                    ),
+                    const SizedBox(height: 16.0),
+                    const Center(
+                      child: Text(
+                        'Registrar',
+                        style: TextStyle(
+                          fontSize: 24.0,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.green,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 24.0),
+                    TextFormField(
+                      controller: fullNameController,
+                      decoration: const InputDecoration(
+                        labelText: 'Nome completo',
+                        border: OutlineInputBorder(),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Nome completo é obrigatório';
+                        }
+                        return null;
                       },
                     ),
-                    const Text('Concordo com os termos'),
+                    const SizedBox(height: 16.0),
+                    TextFormField(
+                      controller: emailController,
+                      decoration: const InputDecoration(
+                        labelText: 'Email',
+                        border: OutlineInputBorder(),
+                      ),
+                      validator: _validateEmail,
+                    ),
+                    const SizedBox(height: 16.0),
+                    TextFormField(
+                      controller: passwordController,
+                      decoration: InputDecoration(
+                        labelText: 'Senha',
+                        border: const OutlineInputBorder(),
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            _isPasswordVisible
+                                ? Icons.visibility
+                                : Icons.visibility_off,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              _isPasswordVisible = !_isPasswordVisible;
+                            });
+                          },
+                        ),
+                      ),
+                      obscureText: !_isPasswordVisible,
+                      validator: _validatePassword,
+                    ),
+                    const SizedBox(height: 16.0),
+                    TextFormField(
+                      controller: confirmPasswordController,
+                      decoration: InputDecoration(
+                        labelText: 'Confirmar senha',
+                        border: const OutlineInputBorder(),
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            _isConfirmPasswordVisible
+                                ? Icons.visibility
+                                : Icons.visibility_off,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              _isConfirmPasswordVisible =
+                                  !_isConfirmPasswordVisible;
+                            });
+                          },
+                        ),
+                      ),
+                      obscureText: !_isConfirmPasswordVisible,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Confirmação de senha é obrigatória';
+                        } else if (value != passwordController.text) {
+                          return 'As senhas não correspondem';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 16.0),
+                    Row(
+                      children: <Widget>[
+                        Checkbox(
+                          value: isTermsAccepted,
+                          onChanged: (bool? value) {
+                            setState(() {
+                              isTermsAccepted = value ?? false;
+                            });
+                          },
+                        ),
+                        const Text('Concordo com os termos'),
+                        TextButton(
+                          onPressed: _showTermsDialog,
+                          child: const Text(
+                            'Ver termos',
+                            style: TextStyle(
+                              decoration: TextDecoration.underline,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16.0),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.all(16.0),
+                        backgroundColor: Colors.black,
+                      ),
+                      onPressed: () async {
+                        if (_formKey.currentState!.validate()) {
+                          if (!isTermsAccepted) {
+                            _showErrorDialog(
+                                'Você deve aceitar os termos para se registrar.');
+                            return;
+                          }
+
+                          try {
+                            await createUser(
+                              fullNameController.text,
+                              emailController.text,
+                              passwordController.text,
+                            );
+                            print('Usuário cadastrado com sucesso!');
+                            _showSuccessDialog();
+                          } catch (e) {
+                            _showErrorDialog('Erro ao cadastrar usuário: $e');
+                          }
+                        }
+                      },
+                      child: const Text('Cadastrar'),
+                    ),
                   ],
                 ),
-                const SizedBox(height: 16.0),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.all(16.0),
-                    backgroundColor: Colors.black,
-                  ),
-                  onPressed: () async {
-                    if (_formKey.currentState!.validate()) {
-                      if (!isTermsAccepted) {
-                        _showErrorDialog(
-                            'Você deve aceitar os termos para se registrar.');
-                        return;
-                      }
-
-                      try {
-                        await createUser(
-                          fullNameController.text,
-                          emailController.text,
-                          passwordController.text,
-                        );
-                        print('Usuário cadastrado com sucesso!');
-                        _showSuccessDialog();
-                      } catch (e) {
-                        _showErrorDialog('Erro ao cadastrar usuário: $e');
-                      }
-                    }
-                  },
-                  child: const Text('Cadastrar'),
-                ),
-              ],
+              ),
             ),
           ),
         ),

@@ -23,7 +23,24 @@ class _LogsPageState extends State<LogsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Logs'),
+        automaticallyImplyLeading: false,
+        title: Container(
+          padding: const EdgeInsets.symmetric(
+              vertical: 8.0, horizontal: 16.0), // Padding maior
+          decoration: BoxDecoration(
+            color: Colors.black54, // Cor de fundo
+            borderRadius: BorderRadius.circular(20), // Borda arredondada
+          ),
+          child: const Text(
+            'Histórico',
+            style: TextStyle(
+              color: Colors.white, // Cor do texto
+              fontWeight: FontWeight.bold, // Negrito
+            ),
+          ),
+        ),
+        centerTitle: true,
+        backgroundColor: const Color.fromARGB(255, 34, 193, 145),
       ),
       body: FutureBuilder<void>(
         future: _loadLogsFuture,
@@ -36,7 +53,7 @@ class _LogsPageState extends State<LogsPage> {
             final logs = SessionManager().logs; // Acessa os logs já carregados
 
             if (logs.isEmpty) {
-              return const Center(child: Text('No logs found.'));
+              return const Center(child: Text('Nenhum registro encontrado.'));
             } else {
               return ListView.builder(
                 itemCount: logs.length,

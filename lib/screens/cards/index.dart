@@ -232,9 +232,24 @@ class _CardsPageState extends State<CardsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Gerenciamento de Cartões'),
+        automaticallyImplyLeading: false,
+        title: Container(
+          padding: const EdgeInsets.symmetric(
+              vertical: 8.0, horizontal: 16.0), // Padding maior
+          decoration: BoxDecoration(
+            color: Colors.black54, // Cor de fundo
+            borderRadius: BorderRadius.circular(20), // Borda arredondada
+          ),
+          child: const Text(
+            'Gerenciamento de Cartões',
+            style: TextStyle(
+              color: Colors.white, // Cor do texto
+              fontWeight: FontWeight.bold, // Negrito
+            ),
+          ),
+        ),
         centerTitle: true,
-        backgroundColor: const Color.fromARGB(255, 151, 252, 224),
+        backgroundColor: const Color.fromARGB(255, 34, 193, 145),
       ),
       body: _cards.isEmpty
           ? const Center(
