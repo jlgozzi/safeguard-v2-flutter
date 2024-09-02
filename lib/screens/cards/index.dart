@@ -15,6 +15,7 @@ class _CardsPageState extends State<CardsPage> {
   List<dynamic> _cards = [];
   List<dynamic> _passwords = [];
   List<dynamic> _accounts = [];
+  bool _isDark = false; // Inicializa com falso
 
   @override
   void initState() {
@@ -22,6 +23,7 @@ class _CardsPageState extends State<CardsPage> {
     _fetchCards();
     _loadPasswordsFromSession();
     _loadAccountsFromSession();
+    _setDarkMode(); // Configura o modo escuro ao iniciar
   }
 
   Future<void> _fetchCards() async {
@@ -42,6 +44,14 @@ class _CardsPageState extends State<CardsPage> {
     setState(() {
       final session = SessionManager();
       _accounts = session.accounts ?? [];
+    });
+  }
+
+  void _setDarkMode() {
+    final session = SessionManager();
+    setState(() {
+      _isDark =
+          session.isDarkMode; // Atualiza o valor com o tema do SessionManager
     });
   }
 
@@ -252,9 +262,14 @@ class _CardsPageState extends State<CardsPage> {
         backgroundColor: const Color.fromARGB(255, 34, 193, 145),
       ),
       body: _cards.isEmpty
-          ? const Center(
-              child: Text('Nenhum cartão encontrado.',
-                  style: TextStyle(fontSize: 18)),
+          ? Center(
+              child: Text(
+                'Nenhum cartão encontrado.',
+                style: TextStyle(
+                  fontSize: 18,
+                  color: _isDark ? Colors.white : Colors.black, // Cor do texto
+                ),
+              ),
             )
           : ListView.builder(
               padding: const EdgeInsets.all(8.0),
@@ -262,15 +277,31 @@ class _CardsPageState extends State<CardsPage> {
               itemBuilder: (ctx, index) {
                 final card = _cards[index];
                 return Card(
+                  color: _isDark
+                      ? const Color.fromARGB(255, 30, 30, 30)
+                      : Colors.white, // Cor do cartão
                   elevation: 5,
                   margin: const EdgeInsets.symmetric(vertical: 8.0),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10.0),
                   ),
                   child: ListTile(
-                    title: Text('Cartão: ${card['number']}'),
+                    title: Text(
+                      'Cartão: ${card['number']}',
+                      style: TextStyle(
+                        color: _isDark
+                            ? Colors.white
+                            : Colors.black, // Cor do texto
+                      ),
+                    ),
                     subtitle: Text(
-                        'Código: ${card['code']} | Vencimento: ${card['due_date']}'),
+                      'Código: ${card['code']} | Vencimento: ${card['due_date']}',
+                      style: TextStyle(
+                        color: _isDark
+                            ? Colors.white70
+                            : Colors.black87, // Cor do texto
+                      ),
+                    ),
                     trailing: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
@@ -284,7 +315,7 @@ class _CardsPageState extends State<CardsPage> {
                               code: card['code'],
                               dueDate: card['due_date'],
                               selectedPasswordId: card['password_id'],
-                              selectedAccountId: card['account_id'], // Alterado
+                              selectedAccountId: card['account_id'],
                             );
                           },
                         ),
@@ -304,8 +335,10 @@ class _CardsPageState extends State<CardsPage> {
         onPressed: () {
           _showAddEditDialog();
         },
+        backgroundColor: const Color.fromARGB(255, 18, 191, 136),
         child: const Icon(Icons.add),
       ),
+      backgroundColor: _isDark ? Colors.black87 : Colors.white, // Cor de fundo
     );
   }
 }

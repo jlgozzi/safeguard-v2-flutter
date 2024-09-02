@@ -14,7 +14,7 @@ class _AccountsPageState extends State<AccountsPage> {
   List<dynamic> _accounts = [];
   List<dynamic> _categories = [];
   List<dynamic> _passwords = [];
-  bool _isDark = SessionManager().isDarkMode; // Adicionando a variável de tema
+  bool _isDark = SessionManager().isDarkMode; // Variável de tema
 
   @override
   void initState() {
@@ -221,7 +221,7 @@ class _AccountsPageState extends State<AccountsPage> {
         title: Container(
           padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
           decoration: BoxDecoration(
-            color: Colors.black54,
+            color: _isDark ? Colors.black54 : Colors.black54, // Cor do título
             borderRadius: BorderRadius.circular(20),
           ),
           child: const Text(
@@ -246,6 +246,9 @@ class _AccountsPageState extends State<AccountsPage> {
               itemBuilder: (ctx, index) {
                 final account = _accounts[index];
                 return Card(
+                  color: _isDark
+                      ? const Color.fromARGB(255, 30, 30, 30)
+                      : Colors.white,
                   elevation: 5,
                   margin: const EdgeInsets.symmetric(vertical: 8.0),
                   shape: RoundedRectangleBorder(
@@ -256,10 +259,20 @@ class _AccountsPageState extends State<AccountsPage> {
                         horizontal: 20.0, vertical: 10.0),
                     title: Text(
                       account['description'],
-                      style: const TextStyle(fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: _isDark ? Colors.white : Colors.black, // Texto
+                      ),
                     ),
-                    subtitle:
-                        account['url'] != null ? Text(account['url']) : null,
+                    subtitle: account['url'] != null
+                        ? Text(
+                            account['url'],
+                            style: TextStyle(
+                                color: _isDark
+                                    ? Colors.white70
+                                    : Colors.black87), // Subtítulo
+                          )
+                        : null,
                     trailing: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
@@ -289,9 +302,7 @@ class _AccountsPageState extends State<AccountsPage> {
                 );
               },
             ),
-      backgroundColor: _isDark
-          ? Colors.black87
-          : Colors.white, // Usando a variável de tema para o fundo
+      backgroundColor: _isDark ? Colors.black87 : Colors.white, // Cor de fundo
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           _showAddEditDialog();

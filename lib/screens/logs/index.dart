@@ -11,6 +11,7 @@ class LogsPage extends StatefulWidget {
 
 class _LogsPageState extends State<LogsPage> {
   late Future<void> _loadLogsFuture;
+  final bool _isDark = SessionManager().isDarkMode;
 
   @override
   void initState() {
@@ -67,11 +68,22 @@ class _LogsPageState extends State<LogsPage> {
                   return ListTile(
                     title: Text(
                       '${log['action']} on ${log['table_name']} [ID: ${log['id']}]',
+                      style: TextStyle(
+                        color: _isDark ? Colors.white : Colors.black,
+                      ),
                     ),
                     subtitle: Text(
                       '${log['description']}\nUser ID: ${log['user_id']}',
+                      style: TextStyle(
+                        color: _isDark ? Colors.white70 : Colors.black87,
+                      ),
                     ),
-                    trailing: Text(formattedDate),
+                    trailing: Text(
+                      formattedDate,
+                      style: TextStyle(
+                        color: _isDark ? Colors.white54 : Colors.black54,
+                      ),
+                    ),
                     isThreeLine: true,
                   );
                 },
@@ -80,6 +92,7 @@ class _LogsPageState extends State<LogsPage> {
           }
         },
       ),
+      backgroundColor: _isDark ? Colors.black87 : Colors.white,
     );
   }
 }

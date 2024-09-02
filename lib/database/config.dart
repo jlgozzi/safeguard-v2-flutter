@@ -4,7 +4,7 @@ Future database() async {
   final conn = await Connection.open(
     Endpoint(
         host: '127.0.0.1',
-        database: 'safeguard3',
+        database: 'safeguard4',
         username: 'admin',
         password: 'admin',
         port: 5432),

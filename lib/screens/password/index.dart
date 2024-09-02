@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:safeguard_v2/helpers/categoryHelper.dart';
-import 'package:safeguard_v2/helpers/dbHelper.dart';
 import 'package:safeguard_v2/helpers/passwordsHelper.dart';
 import 'package:safeguard_v2/manager/sessionManager.dart';
 
@@ -45,12 +44,14 @@ class _PasswordsPageState extends State<PasswordsPage> {
     });
   }
 
-  Future<void> _addPassword(String description, String code) async {
+  Future<void> _addPassword(
+      String description, String code, String categoryId) async {
     await addPassword(description, code);
     _fetchPasswords();
   }
 
-  Future<void> _editPassword(int id, String description, String code) async {
+  Future<void> _editPassword(
+      int id, String description, String code, String categoryId) async {
     await editPassword(id, description, code);
     _fetchPasswords();
   }
@@ -60,14 +61,12 @@ class _PasswordsPageState extends State<PasswordsPage> {
     _fetchPasswords();
   }
 
-  void _showAddEditDialog({int? id, String? description, String? code}) {
+  void _showAddEditDialog(
+      {int? id, String? description, String? code, String? categoryId}) {
     final descriptionController = TextEditingController(text: description);
     final codeController = TextEditingController(text: code);
-
-    String? selectedCategoryId;
-    if (_categories.isNotEmpty) {
-      selectedCategoryId = _categories[0]['id'].toString();
-    }
+    String? selectedCategoryId = categoryId ??
+        (_categories.isNotEmpty ? _categories[0]['id'].toString() : null);
 
     showDialog(
       context: context,
@@ -131,19 +130,22 @@ class _PasswordsPageState extends State<PasswordsPage> {
             ElevatedButton(
               child: Text(id == null ? 'Adicionar' : 'Salvar'),
               onPressed: () {
-                if (selectedCategoryId != null) {
+                if (selectedCategoryId != null &&
+                    descriptionController.text.isNotEmpty &&
+                    codeController.text.isNotEmpty) {
                   if (id == null) {
-                    _addPassword(
-                        descriptionController.text, codeController.text);
+                    _addPassword(descriptionController.text,
+                        codeController.text, selectedCategoryId!);
                   } else {
-                    _editPassword(
-                        id, descriptionController.text, codeController.text);
+                    _editPassword(id, descriptionController.text,
+                        codeController.text, selectedCategoryId!);
                   }
                   Navigator.of(ctx).pop();
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
-                        content: Text('Por favor, selecione uma categoria.')),
+                        content: Text(
+                            'Por favor, preencha todos os campos e selecione uma categoria.')),
                   );
                 }
               },
@@ -195,17 +197,16 @@ class _PasswordsPageState extends State<PasswordsPage> {
       appBar: AppBar(
         automaticallyImplyLeading: false,
         title: Container(
-          padding: const EdgeInsets.symmetric(
-              vertical: 8.0, horizontal: 16.0), // Padding maior
+          padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
           decoration: BoxDecoration(
-            color: Colors.black54, // Cor de fundo
-            borderRadius: BorderRadius.circular(20), // Borda arredondada
+            color: Colors.black54,
+            borderRadius: BorderRadius.circular(20),
           ),
           child: const Text(
             'Minhas senhas',
             style: TextStyle(
-              color: Colors.white, // Cor do texto
-              fontWeight: FontWeight.bold, // Negrito
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
             ),
           ),
         ),
@@ -214,8 +215,10 @@ class _PasswordsPageState extends State<PasswordsPage> {
       ),
       body: _passwords.isEmpty
           ? const Center(
-              child: Text('Nenhuma senha encontrada.',
-                  style: TextStyle(fontSize: 18)),
+              child: Text(
+                'Nenhuma senha encontrada.',
+                style: TextStyle(fontSize: 18),
+              ),
             )
           : ListView.builder(
               padding: const EdgeInsets.all(8.0),
@@ -223,6 +226,9 @@ class _PasswordsPageState extends State<PasswordsPage> {
               itemBuilder: (ctx, index) {
                 final password = _passwords[index];
                 return Card(
+                  color: _isDark
+                      ? const Color.fromARGB(255, 30, 30, 30)
+                      : Colors.white,
                   elevation: 5,
                   margin: const EdgeInsets.symmetric(vertical: 8.0),
                   shape: RoundedRectangleBorder(
@@ -230,14 +236,20 @@ class _PasswordsPageState extends State<PasswordsPage> {
                   ),
                   child: ListTile(
                     contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 20.0,
-                      vertical: 10.0,
-                    ),
+                        horizontal: 20.0, vertical: 10.0),
                     title: Text(
                       password['description'],
-                      style: const TextStyle(fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: _isDark ? Colors.white : Colors.black,
+                      ),
                     ),
-                    subtitle: Text(password['code']),
+                    subtitle: Text(
+                      password['code'],
+                      style: TextStyle(
+                        color: _isDark ? Colors.white70 : Colors.black87,
+                      ),
+                    ),
                     trailing: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
@@ -249,6 +261,7 @@ class _PasswordsPageState extends State<PasswordsPage> {
                               id: password['id'],
                               description: password['description'],
                               code: password['code'],
+                              categoryId: password['categoryId'],
                             );
                           },
                         ),
@@ -271,9 +284,7 @@ class _PasswordsPageState extends State<PasswordsPage> {
           _showAddEditDialog();
         },
         backgroundColor: const Color.fromARGB(255, 18, 191, 136),
-        child: const Icon(
-          Icons.add,
-        ),
+        child: const Icon(Icons.add),
       ),
     );
   }

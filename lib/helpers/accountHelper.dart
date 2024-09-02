@@ -15,18 +15,18 @@ Future<List<dynamic>> fetchAccounts() async {
   try {
     final results = await conn.execute(
       Sql.named('''
-        SELECT 
-          a.id, 
-          a.category_id, 
-          c.description as category_description, 
-          a.description, 
-          a.url, 
-          a.password_id, 
-          a.is_visible 
-        FROM accounts a 
-        LEFT JOIN categories c ON a.category_id = c.id 
-        WHERE a.user_id = @userId
-        '''),
+          SELECT 
+            a.id, 
+            a.category_id, 
+            c.description as category_description, 
+            a.description, 
+            a.url, 
+            a.password_id, 
+            a.is_visible 
+          FROM accounts a 
+          LEFT JOIN categories c ON a.category_id = c.id 
+          WHERE a.user_id = @userId
+          '''),
       parameters: {'userId': userId},
     );
 
@@ -63,11 +63,11 @@ Future<void> addAccount(
   try {
     await conn.execute(
       Sql.named('''
-        INSERT INTO accounts 
-        (description, url, category_id, password_id, is_visible, user_id) 
-        VALUES 
-        (@description, @url, @categoryId, @passwordId, @isVisible, @userId)
-        '''),
+          INSERT INTO accounts 
+          (description, url, category_id, password_id, is_visible, user_id) 
+          VALUES 
+          (@description, @url, @categoryId, @passwordId, @isVisible, @userId)
+          '''),
       parameters: {
         'description': description,
         'url': url,
@@ -90,16 +90,16 @@ Future<void> editAccount(int id, String description, String? url,
   try {
     await conn.execute(
       Sql.named('''
-        UPDATE accounts 
-        SET 
-          description = @description, 
-          url = @url, 
-          category_id = @categoryId, 
-          password_id = @passwordId, 
-          is_visible = @isVisible 
-        WHERE 
-          id = @id
-        '''),
+          UPDATE accounts 
+          SET 
+            description = @description, 
+            url = @url, 
+            category_id = @categoryId, 
+            password_id = @passwordId, 
+            is_visible = @isVisible 
+          WHERE 
+            id = @id
+          '''),
       parameters: {
         'description': description,
         'url': url,

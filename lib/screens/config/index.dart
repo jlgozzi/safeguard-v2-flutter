@@ -57,15 +57,22 @@ class _UserConfigPageState extends State<UserConfigPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Configurações do Usuário'),
+        backgroundColor:
+            isDark! ? Colors.black54 : const Color.fromARGB(255, 34, 193, 145),
       ),
-      body: Padding(
+      body: Container(
+        color: isDark! ? Colors.black87 : Colors.white,
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             SwitchListTile(
-              title: const Text('Modo Escuro'),
+              title: Text(
+                'Modo Escuro',
+                style: TextStyle(color: isDark! ? Colors.white : Colors.black),
+              ),
               value: isDark!,
+              activeColor: const Color.fromARGB(255, 34, 193, 145),
               onChanged: (value) {
                 setState(() {
                   isDark = value;
@@ -73,8 +80,12 @@ class _UserConfigPageState extends State<UserConfigPage> {
               },
             ),
             SwitchListTile(
-              title: const Text('Exibir Senhas'),
+              title: Text(
+                'Exibir Senhas',
+                style: TextStyle(color: isDark! ? Colors.white : Colors.black),
+              ),
               value: isPassVisible!,
+              activeColor: const Color.fromARGB(255, 34, 193, 145),
               onChanged: (value) {
                 setState(() {
                   isPassVisible = value;
@@ -82,8 +93,12 @@ class _UserConfigPageState extends State<UserConfigPage> {
               },
             ),
             SwitchListTile(
-              title: const Text('Exibir Nome'),
+              title: Text(
+                'Exibir Nome',
+                style: TextStyle(color: isDark! ? Colors.white : Colors.black),
+              ),
               value: isNameVisible!,
+              activeColor: const Color.fromARGB(255, 34, 193, 145),
               onChanged: (value) {
                 setState(() {
                   isNameVisible = value;
@@ -93,6 +108,11 @@ class _UserConfigPageState extends State<UserConfigPage> {
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: _saveUserConfigs,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: isDark!
+                    ? Colors.tealAccent
+                    : const Color.fromARGB(255, 33, 222, 193),
+              ),
               child: const Text('Salvar Configurações'),
             ),
           ],

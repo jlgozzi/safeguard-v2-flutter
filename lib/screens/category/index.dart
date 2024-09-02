@@ -11,17 +11,26 @@ class CategoriesPage extends StatefulWidget {
 
 class _CategoriesPageState extends State<CategoriesPage> {
   List<dynamic> _categories = [];
+  bool _isDark = SessionManager().isDarkMode; // Variável para controle do tema
 
   @override
   void initState() {
     super.initState();
     _fetchCategories();
+    _setDarkMode();
   }
 
   Future<void> _fetchCategories() async {
     final categories = await fetchCategories();
     setState(() {
       _categories = categories;
+    });
+  }
+
+  void _setDarkMode() {
+    final session = SessionManager();
+    setState(() {
+      _isDark = session.isDarkMode;
     });
   }
 
@@ -77,7 +86,8 @@ class _CategoriesPageState extends State<CategoriesPage> {
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
-                        content: Text('Por favor, preencha a descrição.')),
+                      content: Text('Por favor, preencha a descrição.'),
+                    ),
                   );
                 }
               },
@@ -109,6 +119,11 @@ class _CategoriesPageState extends State<CategoriesPage> {
               onPressed: () {
                 _deleteCategory(id);
                 Navigator.of(ctx).pop();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Categoria excluída com sucesso!'),
+                  ),
+                );
               },
               child: const Text('Excluir'),
             ),
@@ -124,17 +139,16 @@ class _CategoriesPageState extends State<CategoriesPage> {
       appBar: AppBar(
         automaticallyImplyLeading: false,
         title: Container(
-          padding: const EdgeInsets.symmetric(
-              vertical: 8.0, horizontal: 16.0), // Padding maior
+          padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
           decoration: BoxDecoration(
-            color: Colors.black54, // Cor de fundo
-            borderRadius: BorderRadius.circular(20), // Borda arredondada
+            color: Colors.black54,
+            borderRadius: BorderRadius.circular(20),
           ),
           child: const Text(
             'Minhas categorias',
             style: TextStyle(
-              color: Colors.white, // Cor do texto
-              fontWeight: FontWeight.bold, // Negrito
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
             ),
           ),
         ),
@@ -143,8 +157,10 @@ class _CategoriesPageState extends State<CategoriesPage> {
       ),
       body: _categories.isEmpty
           ? const Center(
-              child: Text('Nenhuma categoria encontrada.',
-                  style: TextStyle(fontSize: 18)),
+              child: Text(
+                'Nenhuma categoria encontrada.',
+                style: TextStyle(fontSize: 18),
+              ),
             )
           : ListView.builder(
               padding: const EdgeInsets.all(8.0),
@@ -152,6 +168,9 @@ class _CategoriesPageState extends State<CategoriesPage> {
               itemBuilder: (ctx, index) {
                 final category = _categories[index];
                 return Card(
+                  color: _isDark
+                      ? const Color.fromARGB(255, 30, 30, 30)
+                      : Colors.white,
                   elevation: 5,
                   margin: const EdgeInsets.symmetric(vertical: 8.0),
                   shape: RoundedRectangleBorder(
@@ -162,7 +181,10 @@ class _CategoriesPageState extends State<CategoriesPage> {
                         horizontal: 20.0, vertical: 10.0),
                     title: Text(
                       category['description'],
-                      style: const TextStyle(fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: _isDark ? Colors.white : Colors.black,
+                      ),
                     ),
                     trailing: Row(
                       mainAxisSize: MainAxisSize.min,
@@ -190,11 +212,12 @@ class _CategoriesPageState extends State<CategoriesPage> {
                 );
               },
             ),
+      backgroundColor: _isDark ? Colors.black87 : Colors.white,
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           _showAddEditDialog();
         },
-        backgroundColor: const Color.fromARGB(255, 33, 222, 193),
+        backgroundColor: const Color.fromARGB(255, 18, 191, 136),
         child: const Icon(Icons.add),
       ),
     );
