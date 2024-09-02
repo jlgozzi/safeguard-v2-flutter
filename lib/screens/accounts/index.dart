@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:safeguard_v2/helpers/accountHelper.dart';
-import 'package:safeguard_v2/helpers/passwordsHelper.dart';
 import 'package:safeguard_v2/manager/sessionManager.dart';
 
 class AccountsPage extends StatefulWidget {
@@ -14,7 +13,8 @@ class _AccountsPageState extends State<AccountsPage> {
   List<dynamic> _accounts = [];
   List<dynamic> _categories = [];
   List<dynamic> _passwords = [];
-  bool _isDark = SessionManager().isDarkMode; // Variável de tema
+  List<bool> _isPasswordVisible = []; // Controla a visibilidade das senhas
+  bool _isDark = false; // Variável de tema
 
   @override
   void initState() {
@@ -24,10 +24,19 @@ class _AccountsPageState extends State<AccountsPage> {
     _setDarkMode();
   }
 
+  void _setDarkMode() {
+    final session = SessionManager();
+    setState(() {
+      _isDark =
+          session.isDarkMode; // Atualiza o valor com o tema do SessionManager
+    });
+  }
+
   Future<void> _fetchAccounts() async {
     final accounts = await fetchAccounts();
     setState(() {
       _accounts = accounts;
+      _isPasswordVisible = List<bool>.filled(accounts.length, false);
     });
   }
 
@@ -36,13 +45,6 @@ class _AccountsPageState extends State<AccountsPage> {
       final session = SessionManager();
       _categories = session.categories ?? [];
       _passwords = session.passwords ?? [];
-    });
-  }
-
-  void _setDarkMode() {
-    final session = SessionManager();
-    setState(() {
-      _isDark = session.isDarkMode;
     });
   }
 
@@ -216,12 +218,16 @@ class _AccountsPageState extends State<AccountsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: _isDark
+          ? Colors.black // Cor de fundo para modo escuro
+          : const Color.fromARGB(
+              255, 245, 245, 245), // Cor de fundo para modo claro
       appBar: AppBar(
         automaticallyImplyLeading: false,
         title: Container(
           padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
           decoration: BoxDecoration(
-            color: _isDark ? Colors.black54 : Colors.black54, // Cor do título
+            color: Colors.black54,
             borderRadius: BorderRadius.circular(20),
           ),
           child: const Text(
@@ -236,9 +242,14 @@ class _AccountsPageState extends State<AccountsPage> {
         backgroundColor: const Color.fromARGB(255, 34, 193, 145),
       ),
       body: _accounts.isEmpty
-          ? const Center(
-              child: Text('Nenhuma conta encontrada.',
-                  style: TextStyle(fontSize: 18)),
+          ? Center(
+              child: Text(
+                'Nenhuma conta encontrada.',
+                style: TextStyle(
+                  fontSize: 18,
+                  color: _isDark ? Colors.white : Colors.black, // Cor do texto
+                ),
+              ),
             )
           : ListView.builder(
               padding: const EdgeInsets.all(8.0),
@@ -248,53 +259,99 @@ class _AccountsPageState extends State<AccountsPage> {
                 return Card(
                   color: _isDark
                       ? const Color.fromARGB(255, 30, 30, 30)
-                      : Colors.white,
+                      : Colors.white, // Cor do cartão
                   elevation: 5,
                   margin: const EdgeInsets.symmetric(vertical: 8.0),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10.0),
                   ),
-                  child: ListTile(
-                    contentPadding: const EdgeInsets.symmetric(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
                         horizontal: 20.0, vertical: 10.0),
-                    title: Text(
-                      account['description'],
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: _isDark ? Colors.white : Colors.black, // Texto
-                      ),
-                    ),
-                    subtitle: account['url'] != null
-                        ? Text(
-                            account['url'],
-                            style: TextStyle(
-                                color: _isDark
-                                    ? Colors.white70
-                                    : Colors.black87), // Subtítulo
-                          )
-                        : null,
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        IconButton(
-                          icon: const Icon(Icons.edit,
-                              color: Color.fromARGB(255, 67, 67, 67)),
-                          onPressed: () {
-                            _showAddEditDialog(
-                              id: account['id'],
-                              description: account['description'],
-                              url: account['url'],
-                              selectedCategoryId: account['category_id'],
-                              selectedPasswordId: account['password_id'],
-                            );
-                          },
+                        Text(
+                          account['description'],
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: _isDark ? Colors.white : Colors.black,
+                          ),
                         ),
-                        IconButton(
-                          icon: const Icon(Icons.delete,
-                              color: Color.fromARGB(255, 199, 34, 22)),
-                          onPressed: () {
-                            _showDeleteConfirmationDialog(account['id']);
-                          },
+                        if (account['url'] != null)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 5.0),
+                            child: Text(
+                              account['url'],
+                              style: TextStyle(
+                                color:
+                                    _isDark ? Colors.white70 : Colors.black87,
+                              ),
+                            ),
+                          ),
+                        Padding(
+                          padding: const EdgeInsets.only(top: 10.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                _isPasswordVisible[index]
+                                    ? account['password_value'] ?? ''
+                                    : '***',
+                                style: TextStyle(
+                                  color:
+                                      _isDark ? Colors.white70 : Colors.black87,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              Row(
+                                children: [
+                                  IconButton(
+                                    icon: Icon(
+                                      _isPasswordVisible[index]
+                                          ? Icons.visibility
+                                          : Icons.visibility_off,
+                                      color: Colors.grey,
+                                    ),
+                                    onPressed: () {
+                                      setState(() {
+                                        _isPasswordVisible[index] =
+                                            !_isPasswordVisible[index];
+                                      });
+                                    },
+                                  ),
+                                  IconButton(
+                                    icon: const Icon(
+                                      Icons.edit,
+                                      color: Colors.blueAccent,
+                                    ),
+                                    onPressed: () {
+                                      _showAddEditDialog(
+                                        id: account['id'],
+                                        description: account['description'],
+                                        url: account['url'],
+                                        selectedCategoryId:
+                                            account['category_id'],
+                                        selectedPasswordId:
+                                            account['password_id'],
+                                        isVisible: _isPasswordVisible[index],
+                                      );
+                                    },
+                                  ),
+                                  IconButton(
+                                    icon: const Icon(
+                                      Icons.delete,
+                                      color: Colors.redAccent,
+                                    ),
+                                    onPressed: () {
+                                      _showDeleteConfirmationDialog(
+                                          account['id']);
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
                       ],
                     ),
@@ -302,12 +359,13 @@ class _AccountsPageState extends State<AccountsPage> {
                 );
               },
             ),
-      backgroundColor: _isDark ? Colors.black87 : Colors.white, // Cor de fundo
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           _showAddEditDialog();
         },
-        backgroundColor: const Color.fromARGB(255, 33, 222, 193),
+        backgroundColor: _isDark
+            ? const Color.fromARGB(255, 34, 193, 145)
+            : const Color.fromARGB(255, 18, 191, 136),
         child: const Icon(Icons.add),
       ),
     );

@@ -2,52 +2,52 @@ import 'package:postgres/postgres.dart';
 import 'package:safeguard_v2/database/config.dart';
 import 'package:safeguard_v2/manager/sessionManager.dart';
 
-Future<List<dynamic>> fetchAccounts() async {
-  final session = SessionManager(); // Acessa o userId global
-  final userId = session.userId;
+// Future<List<dynamic>> fetchAccounts() async {
+//   final session = SessionManager(); // Acessa o userId global
+//   final userId = session.userId;
 
-  if (userId == null) {
-    print('Usuário não está logado');
-    return [];
-  }
+//   if (userId == null) {
+//     print('Usuário não está logado');
+//     return [];
+//   }
 
-  final conn = await database();
-  try {
-    final results = await conn.execute(
-      Sql.named('''
-          SELECT 
-            a.id, 
-            a.category_id, 
-            c.description as category_description, 
-            a.description, 
-            a.url, 
-            a.password_id, 
-            a.is_visible 
-          FROM accounts a 
-          LEFT JOIN categories c ON a.category_id = c.id 
-          WHERE a.user_id = @userId
-          '''),
-      parameters: {'userId': userId},
-    );
+//   final conn = await database();
+//   try {
+//     final results = await conn.execute(
+//       Sql.named('''
+//           SELECT
+//             a.id,
+//             a.category_id,
+//             c.description as category_description,
+//             a.description,
+//             a.url,
+//             a.password_id,
+//             a.is_visible
+//           FROM accounts a
+//           LEFT JOIN categories c ON a.category_id = c.id
+//           WHERE a.user_id = @userId
+//           '''),
+//       parameters: {'userId': userId},
+//     );
 
-    return results
-        .map((row) => {
-              'id': row[0],
-              'category_id': row[1],
-              'category_description': row[2],
-              'description': row[3],
-              'url': row[4],
-              'password_id': row[5],
-              'is_visible': row[6],
-            })
-        .toList();
-  } catch (e) {
-    print('Erro ao buscar contas: $e');
-    return [];
-  } finally {
-    await conn.close();
-  }
-}
+//     return results
+//         .map((row) => {
+//               'id': row[0],
+//               'category_id': row[1],
+//               'category_description': row[2],
+//               'description': row[3],
+//               'url': row[4],
+//               'password_id': row[5],
+//               'is_visible': row[6],
+//             })
+//         .toList();
+//   } catch (e) {
+//     print('Erro ao buscar contas: $e');
+//     return [];
+//   } finally {
+//     await conn.close();
+//   }
+// }
 
 Future<void> addAccount(
     String description, String? url, int? categoryId, int? passwordId) async {
@@ -127,6 +127,56 @@ Future<void> deleteAccount(int id) async {
     );
   } catch (e) {
     print('Erro ao excluir conta: $e');
+  } finally {
+    await conn.close();
+  }
+}
+
+Future<List<dynamic>> fetchAccounts() async {
+  final session = SessionManager(); // Acessa o userId global
+  final userId = session.userId;
+
+  if (userId == null) {
+    print('Usuário não está logado');
+    return [];
+  }
+
+  final conn = await database();
+  try {
+    final results = await conn.execute(
+      Sql.named('''
+          SELECT 
+            a.id, 
+            a.category_id, 
+            c.description as category_description, 
+            a.description, 
+            a.url, 
+            a.password_id, 
+            p.code AS password_value,
+            a.is_visible 
+          FROM accounts a 
+          LEFT JOIN categories c ON a.category_id = c.id 
+          LEFT JOIN passwords p ON a.password_id = p.id  
+          WHERE a.user_id = @userId
+          '''),
+      parameters: {'userId': userId},
+    );
+
+    return results
+        .map((row) => {
+              'id': row[0],
+              'category_id': row[1],
+              'category_description': row[2],
+              'description': row[3],
+              'url': row[4],
+              'password_id': row[5],
+              'password_value': row[6], // Adicionando a senha no mapa
+              'is_visible': row[7],
+            })
+        .toList();
+  } catch (e) {
+    print('Erro ao buscar contas: $e');
+    return [];
   } finally {
     await conn.close();
   }

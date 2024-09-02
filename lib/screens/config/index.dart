@@ -56,9 +56,22 @@ class _UserConfigPageState extends State<UserConfigPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Configurações do Usuário'),
-        backgroundColor:
-            isDark! ? Colors.black54 : const Color.fromARGB(255, 34, 193, 145),
+        title: Container(
+          padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+          decoration: BoxDecoration(
+            color: Colors.black54,
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: const Text(
+            'Configurações do Usuário',
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+        centerTitle: true,
+        backgroundColor: const Color.fromARGB(255, 34, 193, 145),
       ),
       body: Container(
         color: isDark! ? Colors.black87 : Colors.white,

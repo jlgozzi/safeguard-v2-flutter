@@ -85,13 +85,11 @@ class _ProfilePageState extends State<ProfilePage> {
         title: Container(
           padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
           decoration: BoxDecoration(
-            color: _isDark
-                ? Colors.black54
-                : const Color.fromARGB(255, 34, 193, 145),
+            color: Colors.black54,
             borderRadius: BorderRadius.circular(20),
           ),
           child: const Text(
-            'Editar Perfil',
+            'Configurações do Usuário',
             style: TextStyle(
               color: Colors.white,
               fontWeight: FontWeight.bold,
@@ -99,8 +97,7 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
         ),
         centerTitle: true,
-        backgroundColor:
-            _isDark ? Colors.black54 : const Color.fromARGB(255, 34, 193, 145),
+        backgroundColor: const Color.fromARGB(255, 34, 193, 145),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),

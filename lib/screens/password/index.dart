@@ -13,6 +13,7 @@ class PasswordsPage extends StatefulWidget {
 class _PasswordsPageState extends State<PasswordsPage> {
   List<dynamic> _passwords = [];
   List<dynamic> _categories = [];
+  List<bool> _isPasswordVisible = [];
   bool _isDark = SessionManager().isDarkMode;
 
   @override
@@ -27,6 +28,8 @@ class _PasswordsPageState extends State<PasswordsPage> {
     final passwords = await fetchPasswords();
     setState(() {
       _passwords = passwords;
+      _isPasswordVisible = List<bool>.filled(
+          passwords.length, false); // Inicializa a lista de visibilidade
     });
   }
 
@@ -230,47 +233,76 @@ class _PasswordsPageState extends State<PasswordsPage> {
                       ? const Color.fromARGB(255, 30, 30, 30)
                       : Colors.white,
                   elevation: 5,
-                  margin: const EdgeInsets.symmetric(vertical: 8.0),
+                  margin: const EdgeInsets.symmetric(
+                      vertical: 8.0, horizontal: 10.0),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10.0),
                   ),
-                  child: ListTile(
-                    contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 20.0, vertical: 10.0),
-                    title: Text(
-                      password['description'],
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: _isDark ? Colors.white : Colors.black,
-                      ),
-                    ),
-                    subtitle: Text(
-                      password['code'],
-                      style: TextStyle(
-                        color: _isDark ? Colors.white70 : Colors.black87,
-                      ),
-                    ),
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        IconButton(
-                          icon: const Icon(Icons.edit,
-                              color: Color.fromARGB(255, 67, 67, 67)),
-                          onPressed: () {
-                            _showAddEditDialog(
-                              id: password['id'],
-                              description: password['description'],
-                              code: password['code'],
-                              categoryId: password['categoryId'],
-                            );
-                          },
+                        Text(
+                          password['description'],
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: _isDark ? Colors.white : Colors.black,
+                          ),
                         ),
-                        IconButton(
-                          icon: const Icon(Icons.delete,
-                              color: Color.fromARGB(255, 199, 34, 22)),
-                          onPressed: () {
-                            _showDeleteConfirmationDialog(password['id']);
-                          },
+                        const SizedBox(height: 8.0),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              _isPasswordVisible[index]
+                                  ? password['code']
+                                  : '***',
+                              style: TextStyle(
+                                color:
+                                    _isDark ? Colors.white70 : Colors.black87,
+                              ),
+                            ),
+                            IconButton(
+                              icon: Icon(
+                                _isPasswordVisible[index]
+                                    ? Icons.visibility
+                                    : Icons.visibility_off,
+                                color: Colors.grey,
+                              ),
+                              onPressed: () {
+                                setState(() {
+                                  _isPasswordVisible[index] =
+                                      !_isPasswordVisible[index];
+                                });
+                              },
+                            ),
+                          ],
+                        ),
+                        const Divider(),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            IconButton(
+                              icon: const Icon(Icons.edit,
+                                  color: Color.fromARGB(255, 67, 67, 67)),
+                              onPressed: () {
+                                _showAddEditDialog(
+                                  id: password['id'],
+                                  description: password['description'],
+                                  code: password['code'],
+                                  categoryId: password['categoryId'],
+                                );
+                              },
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.delete,
+                                  color: Color.fromARGB(255, 199, 34, 22)),
+                              onPressed: () {
+                                _showDeleteConfirmationDialog(password['id']);
+                              },
+                            ),
+                          ],
                         ),
                       ],
                     ),
