@@ -14,12 +14,14 @@ class PasswordsPage extends StatefulWidget {
 class _PasswordsPageState extends State<PasswordsPage> {
   List<dynamic> _passwords = [];
   List<dynamic> _categories = [];
+  bool _isDark = SessionManager().isDarkMode;
 
   @override
   void initState() {
     super.initState();
     _fetchPasswords();
     _loadCategoriesFromSession();
+    _setDarkMode();
   }
 
   Future<void> _fetchPasswords() async {
@@ -33,6 +35,13 @@ class _PasswordsPageState extends State<PasswordsPage> {
     final session = SessionManager();
     setState(() {
       _categories = session.categories;
+    });
+  }
+
+  void _setDarkMode() {
+    final session = SessionManager();
+    setState(() {
+      _isDark = session.isDarkMode;
     });
   }
 
@@ -256,12 +265,15 @@ class _PasswordsPageState extends State<PasswordsPage> {
                 );
               },
             ),
+      backgroundColor: _isDark ? Colors.black87 : Colors.white,
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           _showAddEditDialog();
         },
-        backgroundColor: const Color.fromARGB(255, 33, 222, 193),
-        child: const Icon(Icons.add),
+        backgroundColor: const Color.fromARGB(255, 18, 191, 136),
+        child: const Icon(
+          Icons.add,
+        ),
       ),
     );
   }

@@ -4,6 +4,7 @@ import 'package:safeguard_v2/screens/accounts/index.dart';
 import 'package:safeguard_v2/screens/cards/index.dart';
 import 'package:safeguard_v2/screens/category/index.dart';
 import 'package:safeguard_v2/screens/config/index.dart';
+import 'package:safeguard_v2/screens/login/index.dart';
 import 'package:safeguard_v2/screens/logs/index.dart';
 import 'package:safeguard_v2/screens/password/index.dart';
 import 'package:safeguard_v2/screens/user/index.dart';
@@ -62,8 +63,10 @@ class _DashboardPageState extends State<DashboardPage>
               ),
               TextButton(
                 onPressed: () {
-                  Navigator.of(context).pop(); // Fecha o modal
-                  Navigator.pushReplacementNamed(context, '/login');
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const LoginPage()),
+                  );
                 },
                 child: const Text('Sair'),
               ),
@@ -76,84 +79,113 @@ class _DashboardPageState extends State<DashboardPage>
 
   @override
   Widget build(BuildContext context) {
-    // Acessa o SessionManager e obtém o nome do usuário
-    final sessionManager = SessionManager();
-    final fullName = sessionManager.user?['full_name'] ?? 'Usuário';
+    return FutureBuilder<void>(
+      future: SessionManager().reload(), // Carrega a configuração do usuário
+      builder: (BuildContext context, AsyncSnapshot<void> snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(
+              child:
+                  CircularProgressIndicator()); // Mostra um indicador de carregamento
+        }
 
-    return Scaffold(
-      appBar: AppBar(
-        toolbarHeight: 100,
-        backgroundColor: Colors.white,
-        elevation: 0,
-        centerTitle: true,
-        automaticallyImplyLeading: false, // Remove o botão de voltar
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Image.asset(
-              'assets/vector.png', // Substitua pelo caminho da sua imagem
-              height: 50,
-            ),
-            const SizedBox(width: 10),
-            const Text(
-              'Safeguard',
-              style: TextStyle(color: Colors.black, fontSize: 24),
-            ),
-            const Spacer(),
-            Row(
+        final sessionManager = SessionManager();
+        final fullName = sessionManager.user?['full_name'] ?? 'Usuário';
+        final isDarkMode = sessionManager.isDarkMode; // Obtém o modo escuro
+
+        final backgroundColor = isDarkMode ? Colors.black87 : Colors.white;
+        final textColor = isDarkMode ? Colors.white : Colors.black;
+        final tabBarColor = isDarkMode ? Colors.white : Colors.black;
+        final unselectedTabBarColor =
+            isDarkMode ? Colors.grey : Colors.grey[600];
+
+        return Scaffold(
+          appBar: AppBar(
+            toolbarHeight: 100,
+            backgroundColor: backgroundColor,
+            elevation: 0,
+            centerTitle: true,
+            automaticallyImplyLeading: false, // Remove o botão de voltar
+            title: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(
-                  fullName, // Exibe o nome do usuário
-                  style: const TextStyle(color: Colors.black, fontSize: 16),
+                Image.asset(
+                  'assets/vector.png', // Substitua pelo caminho da sua imagem
+                  height: 50,
                 ),
                 const SizedBox(width: 10),
-                PopupMenuButton<String>(
-                  onSelected: _onProfileOptionSelected,
-                  offset: const Offset(0, 50), // Move o menu abaixo da foto
-                  itemBuilder: (BuildContext context) {
-                    return {'Editar Perfil', 'Configurações', 'Sair'}
-                        .map((String choice) {
-                      return PopupMenuItem<String>(
-                        value: choice,
-                        child: Text(choice),
-                      );
-                    }).toList();
-                  },
-                  child: const CircleAvatar(
-                    backgroundImage: AssetImage(
-                        'assets/profile.jpg'), // Caminho para a imagem do perfil
-                    radius: 25,
+                Text(
+                  'S a f e g u a r d',
+                  style: TextStyle(
+                    color: textColor, // Cor do texto depende do tema
+                    fontWeight: FontWeight.bold, // Negrito
+                    fontSize: 24,
+                    wordSpacing: 1.00,
                   ),
+                ),
+                const Spacer(),
+                Row(
+                  children: [
+                    Text(
+                      fullName, // Exibe o nome do usuário
+                      style: TextStyle(
+                          color: textColor,
+                          fontSize: 16), // Cor do texto depende do tema
+                    ),
+                    const SizedBox(width: 10),
+                    PopupMenuButton<String>(
+                      onSelected: _onProfileOptionSelected,
+                      offset: const Offset(0, 50), // Move o menu abaixo da foto
+                      itemBuilder: (BuildContext context) {
+                        return {'Editar Perfil', 'Configurações', 'Sair'}
+                            .map((String choice) {
+                          return PopupMenuItem<String>(
+                            value: choice,
+                            child: Text(choice),
+                          );
+                        }).toList();
+                      },
+                      child: CircleAvatar(
+                        backgroundImage: const AssetImage(
+                            'assets/profile.jpg'), // Caminho para a imagem do perfil
+                        radius: 25,
+                        backgroundColor:
+                            textColor, // Cor de fundo do Avatar depende do tema
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
-          ],
-        ),
-        bottom: TabBar(
-          controller: _tabController,
-          isScrollable: true,
-          labelColor: Colors.blue,
-          unselectedLabelColor: Colors.grey,
-          indicatorColor: Colors.blue,
-          tabs: const [
-            Tab(text: 'Contas'),
-            Tab(text: 'Cartões'),
-            Tab(text: 'Categorias'),
-            Tab(text: 'Senhas'),
-            Tab(text: 'Histórico'),
-          ],
-        ),
-      ),
-      body: TabBarView(
-        controller: _tabController,
-        children: const [
-          AccountsPage(),
-          CardsPage(),
-          CategoriesPage(),
-          PasswordsPage(),
-          LogsPage(),
-        ],
-      ),
+            bottom: TabBar(
+              controller: _tabController,
+              isScrollable: true,
+              labelColor: tabBarColor,
+              unselectedLabelColor: unselectedTabBarColor,
+              indicatorColor: tabBarColor,
+              tabs: const [
+                Tab(text: 'Contas'),
+                Tab(text: 'Cartões'),
+                Tab(text: 'Categorias'),
+                Tab(text: 'Senhas'),
+                Tab(text: 'Histórico'),
+              ],
+            ),
+          ),
+          body: Container(
+            color: backgroundColor, // Define o fundo da página
+            child: TabBarView(
+              controller: _tabController,
+              children: const [
+                AccountsPage(),
+                CardsPage(),
+                CategoriesPage(),
+                PasswordsPage(),
+                LogsPage(),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }

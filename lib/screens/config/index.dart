@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:safeguard_v2/helpers/configHelper.dart';
 import 'package:safeguard_v2/manager/sessionManager.dart';
+import 'package:safeguard_v2/screens/dashboard/index.dart';
 
 class UserConfigPage extends StatefulWidget {
   const UserConfigPage({super.key});
@@ -39,6 +40,11 @@ class _UserConfigPageState extends State<UserConfigPage> {
 
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Configurações salvas com sucesso!')),
+    );
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const DashboardPage()),
     );
   }
 

@@ -14,7 +14,7 @@ class LoginPage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: const Color.fromARGB(255, 18, 191, 136),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () {
@@ -23,6 +23,7 @@ class LoginPage extends StatelessWidget {
         ),
         elevation: 0,
       ),
+      backgroundColor: const Color.fromARGB(255, 18, 191, 136), // Fundo verde
       body: SingleChildScrollView(
         child: Center(
           child: Padding(
@@ -33,7 +34,7 @@ class LoginPage extends StatelessWidget {
                 SizedBox(
                   height: 100,
                   child:
-                      Image.asset('assets/logo.png'), // Coloque seu logo aqui
+                      Image.asset('assets/logo1.png'), // Coloque seu logo aqui
                 ),
                 const SizedBox(height: 24.0),
                 const Center(
@@ -42,7 +43,7 @@ class LoginPage extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 24.0,
                       fontWeight: FontWeight.bold,
-                      color: Colors.green,
+                      color: Colors.white,
                     ),
                   ),
                 ),
@@ -84,7 +85,8 @@ class LoginPage extends StatelessWidget {
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           padding: const EdgeInsets.all(16.0),
-                          backgroundColor: Colors.black,
+                          backgroundColor:
+                              const Color.fromARGB(255, 18, 191, 136), // Verde
                         ),
                         onPressed: () async {
                           // Obtém os valores dos campos de texto.
@@ -127,6 +129,10 @@ class LoginPage extends StatelessWidget {
                       ),
                       const SizedBox(height: 16.0),
                       TextButton(
+                        style: TextButton.styleFrom(
+                          foregroundColor:
+                              const Color.fromARGB(255, 18, 191, 136), // Verde
+                        ),
                         onPressed: () {
                           Navigator.push(
                             context,

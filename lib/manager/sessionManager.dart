@@ -18,6 +18,11 @@ class SessionManager {
   Map<String, dynamic>? userConfig;
   Map<String, dynamic>? user;
 
+  bool get isDarkMode {
+    return userConfig?['is_dark'] ??
+        false; // Retorna false se userConfig ou IsDark for nulo
+  }
+
   factory SessionManager() {
     return _instance;
   }

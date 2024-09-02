@@ -51,6 +51,8 @@ Future<void> updateUserConfigs(
       },
     );
 
+    session.reload();
+
     await conn.close();
   } catch (e) {
     print('Error updating user configs: $e');

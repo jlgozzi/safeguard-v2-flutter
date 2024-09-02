@@ -14,12 +14,14 @@ class _AccountsPageState extends State<AccountsPage> {
   List<dynamic> _accounts = [];
   List<dynamic> _categories = [];
   List<dynamic> _passwords = [];
+  bool _isDark = SessionManager().isDarkMode; // Adicionando a variável de tema
 
   @override
   void initState() {
     super.initState();
     _fetchAccounts();
     _loadCategoriesAndPasswordsFromSession();
+    _setDarkMode();
   }
 
   Future<void> _fetchAccounts() async {
@@ -29,12 +31,18 @@ class _AccountsPageState extends State<AccountsPage> {
     });
   }
 
-  void _loadCategoriesAndPasswordsFromSession() async {
+  void _loadCategoriesAndPasswordsFromSession() {
     setState(() {
-      // Carregamento de dados assíncronos dentro de setState
       final session = SessionManager();
       _categories = session.categories ?? [];
       _passwords = session.passwords ?? [];
+    });
+  }
+
+  void _setDarkMode() {
+    final session = SessionManager();
+    setState(() {
+      _isDark = session.isDarkMode;
     });
   }
 
@@ -55,13 +63,14 @@ class _AccountsPageState extends State<AccountsPage> {
     _fetchAccounts();
   }
 
-  void _showAddEditDialog(
-      {int? id,
-      String? description,
-      String? url,
-      int? selectedCategoryId,
-      int? selectedPasswordId,
-      bool isVisible = true}) {
+  void _showAddEditDialog({
+    int? id,
+    String? description,
+    String? url,
+    int? selectedCategoryId,
+    int? selectedPasswordId,
+    bool isVisible = true,
+  }) {
     final descriptionController = TextEditingController(text: description);
     final urlController = TextEditingController(text: url);
 
@@ -210,17 +219,16 @@ class _AccountsPageState extends State<AccountsPage> {
       appBar: AppBar(
         automaticallyImplyLeading: false,
         title: Container(
-          padding: const EdgeInsets.symmetric(
-              vertical: 8.0, horizontal: 16.0), // Padding maior
+          padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
           decoration: BoxDecoration(
-            color: Colors.black54, // Cor de fundo
-            borderRadius: BorderRadius.circular(20), // Borda arredondada
+            color: Colors.black54,
+            borderRadius: BorderRadius.circular(20),
           ),
           child: const Text(
             'Gerenciamento de Contas',
             style: TextStyle(
-              color: Colors.white, // Cor do texto
-              fontWeight: FontWeight.bold, // Negrito
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
             ),
           ),
         ),
@@ -281,6 +289,9 @@ class _AccountsPageState extends State<AccountsPage> {
                 );
               },
             ),
+      backgroundColor: _isDark
+          ? Colors.black87
+          : Colors.white, // Usando a variável de tema para o fundo
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           _showAddEditDialog();
