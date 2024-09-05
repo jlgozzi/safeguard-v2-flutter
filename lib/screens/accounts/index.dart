@@ -190,6 +190,7 @@ class _AccountsPageState extends State<AccountsPage> {
       context: context,
       builder: (ctx) {
         return AlertDialog(
+          backgroundColor: Colors.white,
           title: const Text('Confirmar Exclusão'),
           content: const Text('Tem certeza que deseja excluir esta conta?'),
           actions: [

@@ -14,7 +14,7 @@ Future<List<dynamic>> fetchLogs() async {
   try {
     final results = await conn.execute(
         Sql.named(
-            'SELECT id, table_name, action, description, created_at FROM logs WHERE user_id = @userId ORDER BY id DESC'),
+            'SELECT id, table_name, action, description, created_at, user_id FROM logs WHERE user_id = @userId ORDER BY id DESC'),
         parameters: {'userId': userId});
 
     print(results);
@@ -26,6 +26,7 @@ Future<List<dynamic>> fetchLogs() async {
               'action': row[2],
               'description': row[3],
               'created_at': row[4],
+              'user_id': row[5]
             })
         .toList();
   } catch (e) {

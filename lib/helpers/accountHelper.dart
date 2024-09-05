@@ -80,6 +80,7 @@ Future<void> addAccount(
   } catch (e) {
     print('Erro ao adicionar conta: $e');
   } finally {
+    await session.reload();
     await conn.close();
   }
 }
