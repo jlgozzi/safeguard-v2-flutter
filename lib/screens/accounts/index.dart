@@ -52,17 +52,26 @@ class _AccountsPageState extends State<AccountsPage> {
       String description, String? url, int? categoryId, int? passwordId) async {
     await addAccount(description, url, categoryId, passwordId);
     _fetchAccounts();
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Conta adicionada com sucesso!')),
+    );
   }
 
   Future<void> _editAccount(int id, String description, String? url,
       int? categoryId, int? passwordId, bool isVisible) async {
     await editAccount(id, description, url, categoryId, passwordId, isVisible);
     _fetchAccounts();
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Conta editada com sucesso!')),
+    );
   }
 
   Future<void> _deleteAccount(int id) async {
     await deleteAccount(id);
     _fetchAccounts();
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Conta excluída com sucesso!')),
+    );
   }
 
   void _showAddEditDialog({

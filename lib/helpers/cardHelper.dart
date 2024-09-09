@@ -55,7 +55,7 @@ Future<List<dynamic>> fetchCards() async {
   try {
     final results = await conn.execute(
       Sql.named(
-          '''SELECT id, number, code, due_date, password_id FROM cards WHERE user_id = @userId'''),
+          '''SELECT id, number, code, due_date, password_id, account_id FROM cards WHERE user_id = @userId'''),
       parameters: {'userId': userId},
     );
 
@@ -66,6 +66,7 @@ Future<List<dynamic>> fetchCards() async {
               'code': row[2],
               'due_date': row[3],
               'password_id': row[4],
+              'account_id': row[5]
             })
         .toList();
   } catch (e) {

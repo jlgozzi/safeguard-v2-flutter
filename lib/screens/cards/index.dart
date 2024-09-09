@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart'; // Necessário para copiar o texto para a área de transferência
 import 'package:safeguard_v2/helpers/cardHelper.dart';
 import 'package:safeguard_v2/helpers/passwordsHelper.dart';
 import 'package:safeguard_v2/helpers/accountHelper.dart';
@@ -59,17 +60,29 @@ class _CardsPageState extends State<CardsPage> {
       int? passwordId, int? accountId) async {
     await addCard(number, code, dueDate, passwordId, accountId);
     _fetchCards();
+    ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Cartão adicionado com sucesso!')));
   }
 
   Future<void> _editCard(int id, String number, String code, String dueDate,
       int? passwordId, int? accountId) async {
     await editCard(id, number, code, dueDate, passwordId, accountId);
     _fetchCards();
+    ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Cartão editado com sucesso!')));
   }
 
   Future<void> _deleteCard(int id) async {
     await deleteCard(id);
     _fetchCards();
+    ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Cartão excluído com sucesso!')));
+  }
+
+  void _copyCardNumber(String number) {
+    Clipboard.setData(ClipboardData(text: number));
+    ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Número do cartão copiado!')));
   }
 
   void _showAddEditDialog({
@@ -305,6 +318,12 @@ class _CardsPageState extends State<CardsPage> {
                     trailing: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
+                        IconButton(
+                          icon: const Icon(Icons.copy, color: Colors.green),
+                          onPressed: () {
+                            _copyCardNumber(card['number']);
+                          },
+                        ),
                         IconButton(
                           icon:
                               const Icon(Icons.edit, color: Colors.blueAccent),
