@@ -28,8 +28,7 @@ class _PasswordsPageState extends State<PasswordsPage> {
     final passwords = await fetchPasswords();
     setState(() {
       _passwords = passwords;
-      _isPasswordVisible = List<bool>.filled(
-          passwords.length, false); // Inicializa a lista de visibilidade
+      _isPasswordVisible = List<bool>.filled(passwords.length, false);
     });
   }
 
@@ -51,17 +50,26 @@ class _PasswordsPageState extends State<PasswordsPage> {
       String description, String code, String categoryId) async {
     await addPassword(description, code);
     _fetchPasswords();
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Senha adicionada com sucesso!')),
+    );
   }
 
   Future<void> _editPassword(
       int id, String description, String code, String categoryId) async {
     await editPassword(id, description, code);
     _fetchPasswords();
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Senha editada com sucesso!')),
+    );
   }
 
   Future<void> _deletePassword(int id) async {
     await deletePassword(id);
     _fetchPasswords();
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Senha excluída com sucesso!')),
+    );
   }
 
   void _showAddEditDialog(
@@ -180,11 +188,6 @@ class _PasswordsPageState extends State<PasswordsPage> {
               onPressed: () {
                 _deletePassword(id);
                 Navigator.of(ctx).pop();
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Senha excluída com sucesso!'),
-                  ),
-                );
               },
               child: const Text('Excluir'),
             ),

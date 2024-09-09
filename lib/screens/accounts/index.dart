@@ -11,10 +11,13 @@ class AccountsPage extends StatefulWidget {
 
 class _AccountsPageState extends State<AccountsPage> {
   List<dynamic> _accounts = [];
+  List<dynamic> _filteredAccounts = [];
   List<dynamic> _categories = [];
   List<dynamic> _passwords = [];
   List<bool> _isPasswordVisible = []; // Controla a visibilidade das senhas
   bool _isDark = false; // Variável de tema
+  bool _isSearching = false; // Controla se estamos no modo de busca
+  final TextEditingController _searchController = TextEditingController();
 
   @override
   void initState() {
@@ -22,13 +25,21 @@ class _AccountsPageState extends State<AccountsPage> {
     _fetchAccounts();
     _loadCategoriesAndPasswordsFromSession();
     _setDarkMode();
+
+    // Escutar mudanças no campo de busca
+    _searchController.addListener(_filterAccounts);
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
   }
 
   void _setDarkMode() {
     final session = SessionManager();
     setState(() {
-      _isDark =
-          session.isDarkMode; // Atualiza o valor com o tema do SessionManager
+      _isDark = session.isDarkMode;
     });
   }
 
@@ -36,6 +47,7 @@ class _AccountsPageState extends State<AccountsPage> {
     final accounts = await fetchAccounts();
     setState(() {
       _accounts = accounts;
+      _filteredAccounts = accounts;
       _isPasswordVisible = List<bool>.filled(accounts.length, false);
     });
   }
@@ -45,6 +57,21 @@ class _AccountsPageState extends State<AccountsPage> {
       final session = SessionManager();
       _categories = session.categories ?? [];
       _passwords = session.passwords ?? [];
+    });
+  }
+
+  // Função para filtrar as contas com base no nome digitado
+  void _filterAccounts() {
+    final query = _searchController.text.toLowerCase();
+    setState(() {
+      if (query.isEmpty) {
+        _filteredAccounts = _accounts;
+      } else {
+        _filteredAccounts = _accounts.where((account) {
+          final description = account['description'].toLowerCase();
+          return description.contains(query);
+        }).toList();
+      }
     });
   }
 
@@ -250,8 +277,44 @@ class _AccountsPageState extends State<AccountsPage> {
         ),
         centerTitle: true,
         backgroundColor: const Color.fromARGB(255, 34, 193, 145),
+        actions: [
+          _isSearching
+              ? Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.only(right: 16.0),
+                    child: TextField(
+                      controller: _searchController,
+                      decoration: InputDecoration(
+                        hintText: 'Buscar...',
+                        hintStyle: const TextStyle(color: Colors.white70),
+                        border: InputBorder.none,
+                        filled: true,
+                        fillColor: Colors.white24,
+                        prefixIcon: IconButton(
+                          icon: const Icon(Icons.close, color: Colors.white),
+                          onPressed: () {
+                            setState(() {
+                              _isSearching = false;
+                              _searchController.clear();
+                            });
+                          },
+                        ),
+                      ),
+                      style: const TextStyle(color: Colors.white),
+                    ),
+                  ),
+                )
+              : IconButton(
+                  icon: const Icon(Icons.search, color: Colors.white),
+                  onPressed: () {
+                    setState(() {
+                      _isSearching = true;
+                    });
+                  },
+                ),
+        ],
       ),
-      body: _accounts.isEmpty
+      body: _filteredAccounts.isEmpty
           ? Center(
               child: Text(
                 'Nenhuma conta encontrada.',
@@ -263,9 +326,9 @@ class _AccountsPageState extends State<AccountsPage> {
             )
           : ListView.builder(
               padding: const EdgeInsets.all(8.0),
-              itemCount: _accounts.length,
+              itemCount: _filteredAccounts.length,
               itemBuilder: (ctx, index) {
-                final account = _accounts[index];
+                final account = _filteredAccounts[index];
                 return Card(
                   color: _isDark
                       ? const Color.fromARGB(255, 30, 30, 30)

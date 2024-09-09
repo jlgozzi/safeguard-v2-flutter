@@ -37,16 +37,25 @@ class _CategoriesPageState extends State<CategoriesPage> {
   Future<void> _addCategory(String description) async {
     await addCategory(description);
     _fetchCategories();
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Categoria adicionada com sucesso!')),
+    );
   }
 
   Future<void> _editCategory(int id, String description) async {
     await editCategory(id, description);
     _fetchCategories();
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Categoria editada com sucesso!')),
+    );
   }
 
   Future<void> _deleteCategory(int id) async {
     await deleteCategory(id);
     _fetchCategories();
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Categoria excluída com sucesso!')),
+    );
   }
 
   void _showAddEditDialog({int? id, String? description}) {
@@ -119,11 +128,6 @@ class _CategoriesPageState extends State<CategoriesPage> {
               onPressed: () {
                 _deleteCategory(id);
                 Navigator.of(ctx).pop();
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Categoria excluída com sucesso!'),
-                  ),
-                );
               },
               child: const Text('Excluir'),
             ),
